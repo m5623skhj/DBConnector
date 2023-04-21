@@ -1,0 +1,13 @@
+﻿  Parse.cpp
+  PreCompile.cpp
+C:\Users\User\Desktop\Common\PreCompile.cpp(11,88): warning C4267: '인수': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  main2.cpp
+  ODBCConnector.cpp
+C:\Users\User\source\repos\DBConnector\DBConnector\ODBCConnector.cpp(119): warning C4267: '인수': 'size_t'에서 'SQLSMALLINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  ODBCMetaData.cpp
+  Previous IPDB and IOBJ mismatch, fall back to full compilation.
+LINK : warning C4727: 타임스탬프가 동일한 c:\users\user\source\repos\dbconnector\dbconnector\x64\release\dbconnector.pch PCH가 c:\users\user\source\repos\dbconnector\dbconnector\x64\release\odbcmetadata.obj 및 c:\users\user\source\repos\dbconnector\dbconnector\x64\release\odbcconnector.obj에 있습니다.  첫 번째 PCH를 사용합니다.
+  코드를 생성하고 있습니다.
+  All 123 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  코드를 생성했습니다.
+  DBConnector.vcxproj -> C:\Users\User\source\repos\DBConnector\x64\Release\DBConnector.exe

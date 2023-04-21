@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="소스 파일\DBConnector">
+      <UniqueIdentifier>{680c29bb-e74f-434a-a209-613c3e026d23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\ODBC">
+      <UniqueIdentifier>{8ca853cc-e590-422b-beca-765fb39e9d1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Include">
+      <UniqueIdentifier>{1e1ffecc-95c6-462f-8087-13448749af17}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DBConnector.cpp">
+      <Filter>소스 파일\DBConnector</Filter>
+    </ClCompile>
+    <ClCompile Include="ODBCConnector.cpp">
+      <Filter>소스 파일\ODBC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\Common\Parse.cpp">
+      <Filter>소스 파일\Include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\Common\PreCompile.cpp">
+      <Filter>소스 파일\Include</Filter>
+    </ClCompile>
+    <ClCompile Include="main2.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ODBCMetaData.cpp">
+      <Filter>소스 파일\ODBC</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DBConnector.h">
+      <Filter>소스 파일\DBConnector</Filter>
+    </ClInclude>
+    <ClInclude Include="ODBCConnector.h">
+      <Filter>소스 파일\ODBC</Filter>
+    </ClInclude>
+    <ClInclude Include="ODBCMetaData.h">
+      <Filter>소스 파일\ODBC</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

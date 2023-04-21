@@ -1,0 +1,11 @@
+#pragma once
+
+enum COLUMN_NUMBER
+{
+	PROCEDURE_NAME = 3u,
+	COLUMN_NAME = 4u,
+	COLUMN_TYPE = 5u,
+	DATA_TYPE = 6u,
+	DATA_TYPE_NAME = 7u,
+	COLUMN_SIZE = 8u,
+};

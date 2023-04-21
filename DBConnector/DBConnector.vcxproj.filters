@@ -56,5 +56,8 @@
     <ClInclude Include="ODBCMetaData.h">
       <Filter>소스 파일\ODBC</Filter>
     </ClInclude>
+    <ClInclude Include="ODBCConst.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

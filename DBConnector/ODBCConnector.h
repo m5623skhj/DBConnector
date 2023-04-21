@@ -2,6 +2,9 @@
 
 #include <sql.h>
 #include <sqlext.h>
+#include <memory>
+
+class ODBCMetaData;
 
 class ODBCConnector
 {
@@ -23,11 +26,14 @@ private:
 	bool MakeProcedureName();
 	bool MakeProcedureMetaData();
 
+	bool MakeODBCMetaData();
+
 private:
 
 
 private:
 	bool OptionParsing(const std::wstring& optionFileName);
+	bool ConnectSQLDriver();
 
 public:
 	SQLHSTMT GetStmtHandle();
@@ -36,6 +42,9 @@ private:
 	SQLHENV enviromentHandle;
 	SQLHDBC dbcHandle;
 	SQLHSTMT stmtHandle;
+
+private:
+	std::unique_ptr<ODBCMetaData> metaData;
 
 public:
 	WCHAR* GetSchemaName() { return schemaName; }

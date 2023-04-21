@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Parse.h"
 #include "ODBCConst.h"
+#include "ODBCMetaData.h"
 
 ODBCConnector::ODBCConnector()
 {
@@ -46,15 +47,7 @@ bool ODBCConnector::ConnectDB(const std::wstring& optionFileName)
 		return false;
 	}
 
-	std::wstring connectString;
-	connectString += L"DSN=";
-	connectString += dsn;
-	connectString += L";UID=";
-	connectString += uid;
-	connectString += L";PWD=";
-	connectString += password;
-	sqlReturn = SQLDriverConnect(dbcHandle, NULL, (SQLWCHAR*)connectString.c_str(), SQL_NTS, NULL, 0, NULL, SQL_DRIVER_COMPLETE);
-	if(sqlReturn != SQL_SUCCESS)
+	if (ConnectSQLDriver() == false)
 	{
 		std::cout << "SQLDriverConnect() Failed : " << sqlReturn << std::endl;
 		return false;
@@ -80,6 +73,8 @@ void ODBCConnector::DisconnectDB()
 
 bool ODBCConnector::InitDB()
 {
+	metaData.reset(new ODBCMetaData(schemaName));
+
 	if (MakeProcedureName() == false)
 	{
 		std::cout << "MakeProcedureName Failed : " << std::endl;
@@ -106,22 +101,15 @@ bool ODBCConnector::DBSendQuery(std::wstring query)
 
 bool ODBCConnector::MakeProcedureName()
 {
-	SQLWCHAR* catalog_name = (SQLWCHAR*)L"SQL_ALL_CATALOGS";
-	if (SQLProcedures(stmtHandle, (SQLWCHAR*)catalog_name, static_cast<SQLSMALLINT>(wcslen(catalog_name)), schemaName, wcslen(schemaName), NULL, NULL) != SQL_SUCCESS)
+	std::vector<std::string> procedureNameList;
+	if (metaData == nullptr)
 	{
 		return false;
 	}
 
-	SQLCHAR procedureName[256];
-	SQLRETURN ret;
-	// SQLFetch 함수를 먼저 호출
-	while (SQLFetch(stmtHandle) == SQL_SUCCESS)
+	if (metaData->GetProcedureNameFromDB(*this, schemaName, procedureNameList) == false)
 	{
-		ret = SQLGetData(stmtHandle, COLUMN_NUMBER::PROCEDURE_NAME, SQL_C_CHAR, procedureName, sizeof(procedureName), nullptr);
-		if (ret != SQL_SUCCESS)
-		{
-			return false;
-		}
+		return false;
 	}
 
 	return true;
@@ -132,6 +120,19 @@ bool ODBCConnector::MakeProcedureMetaData()
 	return true;
 }
 
+bool ODBCConnector::MakeODBCMetaData()
+{
+	std::vector<std::string> procedureName = { 0 };
+	if (metaData->GetProcedureNameFromDB(*this, GetSchemaName(), procedureName) == false)
+	{
+		return false;
+	}
+
+
+	return true;
+}
+
+
 SQLHSTMT ODBCConnector::GetStmtHandle()
 {
 	return stmtHandle;
@@ -139,33 +140,33 @@ SQLHSTMT ODBCConnector::GetStmtHandle()
 
 bool ODBCConnector::OptionParsing(const std::wstring& optionFileName)
 {
-	_wsetlocale(LC_ALL, L"Korean");
+	WCHAR buffer[BUFFER_MAX];
+	LoadParsingText(buffer, optionFileName.c_str(), BUFFER_MAX);
 
-	CParser parser;
-	WCHAR cBuffer[BUFFER_MAX];
-
-	FILE* fp;
-	_wfopen_s(&fp, optionFileName.c_str(), L"rt, ccs=UNICODE");
-	if (fp == NULL)
+	if (g_Paser.GetValue_String(buffer, L"ODBC", L"DSN", dsn) == false)
+		return false;
+	if (g_Paser.GetValue_String(buffer, L"ODBC", L"UID", uid) == false)
+		return false;
+	if (g_Paser.GetValue_String(buffer, L"ODBC", L"PWD", password) == false)
 		return false;
 
-	int iJumpBOM = ftell(fp);
-	fseek(fp, 0, SEEK_END);
-	int iFileSize = ftell(fp);
-	fseek(fp, iJumpBOM, SEEK_SET);
-	int FileSize = (int)fread_s(cBuffer, BUFFER_MAX, sizeof(WCHAR), BUFFER_MAX / 2, fp);
-	int iAmend = iFileSize - FileSize; // 개행 문자와 파일 사이즈에 대한 보정값
-	fclose(fp);
+	return true;
+}
 
-	cBuffer[iFileSize - iAmend] = '\0';
-	WCHAR* pBuff = cBuffer;
-
-	if (!parser.GetValue_String(pBuff, L"ODBC", L"DSN", dsn))
+bool ODBCConnector::ConnectSQLDriver()
+{
+	std::wstring connectString;
+	connectString += L"DSN=";
+	connectString += dsn;
+	connectString += L";UID=";
+	connectString += uid;
+	connectString += L";PWD=";
+	connectString += password;
+	SQLRETURN sqlReturn = SQLDriverConnect(dbcHandle, NULL, (SQLWCHAR*)connectString.c_str(), SQL_NTS, NULL, 0, NULL, SQL_DRIVER_COMPLETE);
+	if (sqlReturn != SQL_SUCCESS)
+	{
 		return false;
-	if (!parser.GetValue_String(pBuff, L"ODBC", L"UID", uid))
-		return false;
-	if (!parser.GetValue_String(pBuff, L"ODBC", L"PWD", password))
-		return false;
+	}
 
 	return true;
 }

@@ -15,7 +15,7 @@ public:
 	ODBCMetaData& operator=(const ODBCMetaData&) = delete;
 
 public:
-	bool GetProcedureNameFromDB(ODBCConnector& connector, OUT std::vector<std::wstring>& );
+	bool GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* schemaName, OUT std::vector<std::string>& procedureNameList);
 
 private:
 	std::wstring catalogName;

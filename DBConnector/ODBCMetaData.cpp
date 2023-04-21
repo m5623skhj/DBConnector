@@ -16,7 +16,7 @@ ODBCMetaData::~ODBCMetaData()
 
 }
 
-bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, OUT std::vector<std::wstring>& procedureNameList)
+bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* schemaName, OUT std::vector<std::string>& procedureNameList)
 {
 	auto stmtHandle = connector.GetStmtHandle();
 	if (stmtHandle == nullptr)
@@ -32,7 +32,6 @@ bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, OUT std::vec
 
 	SQLCHAR procedureName[256];
 	SQLRETURN ret;
-	// SQLFetch 함수를 먼저 호출
 	while (SQLFetch(stmtHandle) == SQL_SUCCESS)
 	{
 		ret = SQLGetData(stmtHandle, COLUMN_NUMBER::PROCEDURE_NAME, SQL_C_CHAR, procedureName, sizeof(procedureName), nullptr);
@@ -40,6 +39,8 @@ bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, OUT std::vec
 		{
 			return false;
 		}
+
+		procedureNameList.emplace_back(reinterpret_cast<const char*>(procedureName));
 	}
 
 	return true;

@@ -23,10 +23,8 @@ public:
 	bool DBSendQuery(std::wstring query);
 
 private:
-	bool MakeProcedureName();
+	bool MakeProcedureFromDB();
 	bool MakeProcedureMetaData();
-
-	bool MakeODBCMetaData();
 
 private:
 

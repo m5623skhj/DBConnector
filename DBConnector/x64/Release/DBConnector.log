@@ -1,9 +1,7 @@
 ﻿  ODBCConnector.cpp
-  ODBCMetaData.cpp
-C:\Users\User\source\repos\DBConnector\DBConnector\ODBCMetaData.cpp(28): warning C4267: '인수': 'size_t'에서 'SQLSMALLINT'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  main2.cpp
   코드를 생성하고 있습니다.
-  Previous IPDB and IOBJ mismatch, fall back to full compilation.
-  All 233 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  1 of 467 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
   코드를 생성했습니다.
   DBConnector.vcxproj -> C:\Users\User\source\repos\DBConnector\x64\Release\DBConnector.exe

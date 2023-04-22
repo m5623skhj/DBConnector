@@ -1,10 +1,13 @@
 #include "PreCompile.h"
 #include "ODBCConnector.h"
-#include <Windows.h>
-#include <iostream>
-#include "Parse.h"
 #include "ODBCConst.h"
 #include "ODBCMetaData.h"
+
+#include "Parse.h"
+
+#include <Windows.h>
+#include <iostream>
+#include <set>
 
 ODBCConnector::ODBCConnector()
 {
@@ -75,7 +78,7 @@ bool ODBCConnector::InitDB()
 {
 	metaData.reset(new ODBCMetaData(schemaName));
 
-	if (MakeProcedureName() == false)
+	if (MakeProcedureFromDB() == false)
 	{
 		std::cout << "MakeProcedureName Failed : " << std::endl;
 		return false;
@@ -99,15 +102,20 @@ bool ODBCConnector::DBSendQuery(std::wstring query)
 	return true;
 }
 
-bool ODBCConnector::MakeProcedureName()
+bool ODBCConnector::MakeProcedureFromDB()
 {
-	std::vector<std::string> procedureNameList;
+	std::set<std::string> procedureNameList;
 	if (metaData == nullptr)
 	{
 		return false;
 	}
 
 	if (metaData->GetProcedureNameFromDB(*this, schemaName, procedureNameList) == false)
+	{
+		return false;
+	}
+
+	if (metaData->MakeProcedureColumnInfoFromDB(*this, procedureNameList) == false)
 	{
 		return false;
 	}
@@ -119,19 +127,6 @@ bool ODBCConnector::MakeProcedureMetaData()
 {
 	return true;
 }
-
-bool ODBCConnector::MakeODBCMetaData()
-{
-	std::vector<std::string> procedureName = { 0 };
-	if (metaData->GetProcedureNameFromDB(*this, GetSchemaName(), procedureName) == false)
-	{
-		return false;
-	}
-
-
-	return true;
-}
-
 
 SQLHSTMT ODBCConnector::GetStmtHandle()
 {

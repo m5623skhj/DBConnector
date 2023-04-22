@@ -21,8 +21,6 @@ int main() {
         return 0;
     }
 
-    // bind?
-
     connector.DisconnectDB();
 
     /*

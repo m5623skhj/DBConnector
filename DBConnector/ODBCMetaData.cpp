@@ -2,6 +2,7 @@
 #include "ODBCMetaData.h"
 #include "ODBCConnector.h"
 #include "ODBCConst.h"
+#include "ODBCUtil.h"
 
 #include <sql.h>
 #include <sqlext.h>
@@ -25,6 +26,55 @@ ColumnInfo::ColumnInfo(SQLTCHAR* inName, SQLSMALLINT inType,
 	, dataTypeName(inDataTypeName)
 	, columnSize(inColumnSize)
 {
+}
+
+bool ProcedureInfo::SettingDefaultSPMaker(SQLHSTMT stmtHandle)
+{
+	int cnt = 1;
+	for (const auto& inputColumn : inputColumnInfoList)
+	{
+		auto defaultColumn = GetDefaultValue(inputColumn.dataType);
+		if (defaultColumn == nullptr)
+		{
+			return false;
+		}
+
+		if (SQLIsSuccess(SQLBindParameter(stmtHandle, cnt, SQL_PARAM_INPUT, SQL_C_SLONG, inputColumn.dataType, 0, 0, (SQLPOINTER)(defaultColumn.get()), 0, NULL)) == false)
+		{
+			PrintSQLErrorMessage(stmtHandle);
+			return false;
+		}
+
+		++cnt;
+	}
+
+	return true;
+}
+
+std::shared_ptr<void> ProcedureInfo::GetDefaultValue(short dataType)
+{
+	if (dataType == SQL_NUMERIC || dataType == SQL_DECIMAL || dataType == SQL_INTEGER)
+	{
+		return std::make_shared<int>(0);
+	}
+	else if (dataType == SQL_BIGINT)
+	{
+		return std::make_shared<INT64>(0);
+	}
+	else if (dataType == SQL_FLOAT || dataType == SQL_REAL)
+	{
+		return std::make_shared<float>(0.f);
+	}
+	else if (dataType == SQL_VARCHAR)
+	{
+		return std::make_shared<WCHAR>(L' ');
+	}
+	else if (dataType == SQL_BIT)
+	{
+		return std::make_shared<bool>(false);
+	}
+
+	return nullptr;
 }
 
 ODBCMetaData::ODBCMetaData(const std::wstring& inCatalogName)
@@ -53,7 +103,7 @@ bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* schem
 	while (SQLFetch(stmtHandle) == SQL_SUCCESS)
 	{
 		ret = SQLGetData(stmtHandle, COLUMN_NUMBER::PROCEDURE_NAME, SQL_C_CHAR, procedureName, sizeof(procedureName), nullptr);
-		if (ret != SQL_SUCCESS)
+		if (SQLIsSuccess(ret) == false)
 		{
 			return false;
 		}
@@ -69,6 +119,15 @@ bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* schem
 bool ODBCMetaData::MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const std::set<std::string>& procedureNameList)
 {
 	auto stmtHandle = connector.GetStmtHandle();
+	// auto commit mode off
+	// SQLExecute()를 모두 롤백하기 위해서 설정
+	auto ret = SQLSetConnectAttr(connector.GetDBCHandle(), SQL_ATTR_AUTOCOMMIT, SQL_AUTOCOMMIT_OFF, 0);
+	if (SQLIsSuccess(ret) == false)
+	{
+		std::cout << "SQLSetConnectAttr failed : " << std::endl;
+		PrintSQLErrorMessage(stmtHandle);
+		return false;
+	}
 
 	for (const auto& procedureName : procedureNameList)
 	{
@@ -86,10 +145,22 @@ bool ODBCMetaData::MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const
 			return false;
 		}
 
-		auto ret = SQLPrepare(stmtHandle, (SQLWCHAR*)procedureInfo->sql.c_str(), SQL_NTS);
+		ret = SQLPrepare(stmtHandle, (SQLWCHAR*)procedureInfo->sql.c_str(), SQL_NTS);
 		if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO)
 		{
 			std::cout << "SQLPrepare failed : " << procedureName << std::endl;
+			PrintSQLErrorMessage(stmtHandle);
+			return false;
+		}
+		procedureInfo->SettingDefaultSPMaker(stmtHandle);
+
+		// 반드시 먼저 SQLExecute() 혹은 SQLExecDirect()를 먼저 호출해야 함
+		// 호출하지 않으면, SQLNumResultCols()를 호출할 때, coulmnCount가 0을 반환함
+		ret = SQLExecute(stmtHandle);
+		if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO)
+		{
+			std::cout << "SQLExecute failed : " << procedureName << std::endl;
+			PrintSQLErrorMessage(stmtHandle);
 			return false;
 		}
 
@@ -98,7 +169,19 @@ bool ODBCMetaData::MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const
 			return false;
 		}
 
+		// 실제로 호출된 sp가 적용되면 안되므로 롤백시킴
+		SQLEndTran(SQL_HANDLE_DBC, connector.GetDBCHandle(), SQL_ROLLBACK);
+		
 		procedureInfoMap.insert({ procedureName, procedureInfo });
+	}
+
+	// auto commit mode on
+	ret = SQLSetConnectAttr(connector.GetDBCHandle(), SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_ON, 0);
+	if (SQLIsSuccess(ret) == false)
+	{
+		std::cout << "SQLSetStmtAttr() failed" << std::endl;
+		PrintSQLErrorMessage(stmtHandle);
+		return false;
 	}
 
 	return true;
@@ -107,7 +190,7 @@ bool ODBCMetaData::MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const
 bool ODBCMetaData::MakeInputColumnToProcedureInfo(SQLHSTMT stmtHandle, const std::string& procedureName, const WCHAR* procedureNameBuffer, OUT std::shared_ptr<ProcedureInfo> outProcdureInfo)
 {
 	auto ret = SQLProcedureColumns(stmtHandle, NULL, 0, NULL, 0, (SQLWCHAR*)procedureNameBuffer, SQL_NTS, NULL, 0);
-	if (ret != SQL_SUCCESS)
+	if (SQLIsSuccess(ret) == false)
 	{
 		return false;
 	}
@@ -161,7 +244,7 @@ bool ODBCMetaData::MakeInputColumnToProcedureInfo(SQLHSTMT stmtHandle, const std
 	bool isFirstParam = true;
 	while (true)
 	{
-		if (SQLFetch(stmtHandle) != SQL_SUCCESS)
+		if (SQLIsSuccess(SQLFetch(stmtHandle)) == false)
 		{
 			break;
 		}
@@ -194,9 +277,10 @@ bool ODBCMetaData::MakeOutputColumnToProcedureInfo(SQLHSTMT stmtHandle, const st
 {
 	SQLSMALLINT columnCount = 0;
 	SQLRETURN ret = SQLNumResultCols(stmtHandle, &columnCount);
-	if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO)
+	if (SQLIsSuccess(ret) == false)
 	{
 		std::cout << "SQLNumResultCols failed : " << procedureName << std::endl;
+		PrintSQLErrorMessage(stmtHandle);
 		return false;
 	}
 
@@ -213,16 +297,17 @@ bool ODBCMetaData::MakeOutputColumnToProcedureInfo(SQLHSTMT stmtHandle, const st
 	for (int i = 1; i <= columnCount; ++i)
 	{
 		ResultColumnInfo resultColumn;
-		if (SQLDescribeCol(stmtHandle, static_cast<SQLUSMALLINT>(i)
+		if (SQLIsSuccess(SQLDescribeCol(stmtHandle, static_cast<SQLUSMALLINT>(i)
 			, resultColumn.name
 			, _countof(resultColumn.name)
 			, &resultColumn.nameLength
 			, &resultColumn.dataType
 			, &resultColumn.columnSize
 			, &resultColumn.decimalDigits
-			, &resultColumn.nullable) != SQL_SUCCESS)
+			, &resultColumn.nullable)) == false)
 		{
 			std::cout << "SQLDescribeCol failed : " << procedureName << ", " << i << std::endl;
+			PrintSQLErrorMessage(stmtHandle);
 			return false;
 		}
 
@@ -242,6 +327,7 @@ std::wstring GetDataTypeName(SQLSMALLINT inDataType)
 		return L"int64";
 	case SQL_NUMERIC:
 	case SQL_DECIMAL:
+	case SQL_INTEGER:
 		return L"int";
 	case SQL_FLOAT:
 	case SQL_REAL:

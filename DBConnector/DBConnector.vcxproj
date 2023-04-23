@@ -165,6 +165,8 @@
     <ClCompile Include="main2.cpp" />
     <ClCompile Include="ODBCConnector.cpp" />
     <ClCompile Include="ODBCMetaData.cpp" />
+    <ClCompile Include="ODBCUtil.cpp" />
+    <ClCompile Include="StoredProcedure.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DBConnector.h">
@@ -173,6 +175,8 @@
     <ClInclude Include="ODBCConnector.h" />
     <ClInclude Include="ODBCConst.h" />
     <ClInclude Include="ODBCMetaData.h" />
+    <ClInclude Include="ODBCUtil.h" />
+    <ClInclude Include="StoredProcedure.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

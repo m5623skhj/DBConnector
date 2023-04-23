@@ -2,6 +2,7 @@
 #include "ODBCConnector.h"
 #include "ODBCConst.h"
 #include "ODBCMetaData.h"
+#include "ODBCUtil.h"
 
 #include "Parse.h"
 
@@ -131,6 +132,11 @@ bool ODBCConnector::MakeProcedureMetaData()
 SQLHSTMT ODBCConnector::GetStmtHandle()
 {
 	return stmtHandle;
+}
+
+SQLHDBC ODBCConnector::GetDBCHandle()
+{
+	return dbcHandle;
 }
 
 bool ODBCConnector::OptionParsing(const std::wstring& optionFileName)

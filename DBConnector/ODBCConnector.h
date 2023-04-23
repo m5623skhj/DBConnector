@@ -35,6 +35,7 @@ private:
 
 public:
 	SQLHSTMT GetStmtHandle();
+	SQLHDBC GetDBCHandle();
 
 private:
 	SQLHENV enviromentHandle;

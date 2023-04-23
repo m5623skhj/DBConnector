@@ -22,6 +22,9 @@
     <Filter Include="소스 파일\Include">
       <UniqueIdentifier>{1e1ffecc-95c6-462f-8087-13448749af17}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\StoredProcedure">
+      <UniqueIdentifier>{b7932c3f-bbd4-4d91-87b2-967204c12b1e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -45,6 +48,12 @@
     <ClCompile Include="ODBCMetaData.cpp">
       <Filter>소스 파일\ODBC</Filter>
     </ClCompile>
+    <ClCompile Include="ODBCUtil.cpp">
+      <Filter>소스 파일\ODBC</Filter>
+    </ClCompile>
+    <ClCompile Include="StoredProcedure.cpp">
+      <Filter>소스 파일\StoredProcedure</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DBConnector.h">
@@ -58,6 +67,12 @@
     </ClInclude>
     <ClInclude Include="ODBCConst.h">
       <Filter>소스 파일\ODBC</Filter>
+    </ClInclude>
+    <ClInclude Include="ODBCUtil.h">
+      <Filter>소스 파일\ODBC</Filter>
+    </ClInclude>
+    <ClInclude Include="StoredProcedure.h">
+      <Filter>소스 파일\StoredProcedure</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

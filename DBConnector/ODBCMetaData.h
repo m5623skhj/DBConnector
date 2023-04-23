@@ -32,6 +32,11 @@ struct ProcedureInfo
 	std::vector<ColumnInfo> resultColumnInfoList;
 
 	std::wstring sql;
+
+	bool SettingDefaultSPMaker(SQLHSTMT stmtHandle);
+
+private:
+	std::shared_ptr<void> GetDefaultValue(short dataType);
 };
 
 class ODBCMetaData

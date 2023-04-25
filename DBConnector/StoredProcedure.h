@@ -1,17 +1,20 @@
 #pragma once
+#include "Reflection.h"
 
 class IStoredProcedure
 {
+	DEFINE_CLASS_INFO(IStoredProcedure)
+
 public:
 	virtual ~IStoredProcedure() {}
-	virtual std::wstring GetClassName() const = 0;
 };
 
 class test : IStoredProcedure
 {
+	DEFINE_CLASS_INFO(test)
+
 public:
 	virtual ~test() {}
-	virtual std::wstring GetClassName() const { return L"test"; }
 
 public:
 	int _id = 0;

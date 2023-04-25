@@ -5,10 +5,23 @@
 #include <sqlext.h>
 
 #include "ODBCConnector.h"
+#include "StoredProcedure.h"
 
 using namespace std;
 
 int main() {
+
+    // test code
+    //*/
+
+    test testProcedure;
+    auto super = testProcedure.GetTypeInfo().GetSuper();
+    if (super != nullptr)
+    {
+        cout << "has super" << endl;
+    }
+
+    //*/
 
     ODBCConnector connector;
 

@@ -9,8 +9,8 @@ class TypeInfo;
 template <typename T>
 concept HasSuper = requires
 {
-	T::Super;
-} && std::same_as<typename T::Super, void> == false;
+	typename T::Super;
+} && std::derived_from<T, typename T::Super> == true;
 
 template <typename T>
 concept HasStaticTypeInfo = requires

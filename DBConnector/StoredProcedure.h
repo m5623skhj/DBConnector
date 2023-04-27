@@ -9,7 +9,7 @@ public:
 	virtual ~IStoredProcedure() {}
 };
 
-class test : IStoredProcedure
+class test : public IStoredProcedure
 {
 	DEFINE_CLASS_INFO(test)
 

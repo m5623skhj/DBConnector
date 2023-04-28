@@ -79,7 +79,7 @@ public:
 		return hashCode == inItem.hashCode;
 	}
 
-	bool IsChildOf(const TypeInfo& inItem)
+	bool IsChildOf(const TypeInfo& inItem) const
 	{
 		if (IsA(inItem) == true)
 		{
@@ -145,3 +145,19 @@ private:\
 	inline static TypeInfo& typeInfo = StaticTypeInfo();\
 \
 private:\
+
+template<typename To, typename From>
+To* Cast(From* source)
+{
+	if (source == nullptr)
+	{
+		return nullptr;
+	}
+
+	if (source->GetTypeInfo().IsChildOf<To>() == false)
+	{
+		return nullptr;
+	}
+
+	return reinterpret_cast<To*>(source);
+}

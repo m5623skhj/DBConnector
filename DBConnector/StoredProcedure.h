@@ -21,3 +21,11 @@ public:
 	int _id2 = 0;
 	int _id3 = 0;
 };
+
+class test2 : public IStoredProcedure
+{
+	DEFINE_CLASS_INFO(test2)
+
+public:
+	virtual ~test2() {}
+};

@@ -1,5 +1,9 @@
 #pragma once
 #include "Reflection.h"
+#include <map>
+#include <typeinfo>
+#include <typeindex>
+#include "Type.h"
 
 class IStoredProcedure
 {
@@ -11,7 +15,11 @@ public:
 
 class test : public IStoredProcedure
 {
-	DEFINE_CLASS_INFO(test)
+	DEFINE_CLASS_INFO(test);
+
+	REGISTER_PROPERTY(_id);
+	REGISTER_PROPERTY(_id2);
+	REGISTER_PROPERTY(_id3);
 
 public:
 	virtual ~test() {}
@@ -24,8 +32,15 @@ public:
 
 class test2 : public IStoredProcedure
 {
-	DEFINE_CLASS_INFO(test2)
+	DEFINE_CLASS_INFO(test2);
+
+	REGISTER_PROPERTY(_id);
+	REGISTER_PROPERTY(_testString);
 
 public:
 	virtual ~test2() {}
+
+public:
+	float _id = 0.f;
+	FString _testString;
 };

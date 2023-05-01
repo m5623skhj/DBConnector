@@ -20,7 +20,8 @@ TEST(DBConnectorTest, DBInitializeTest)
 
 TEST(DBConnectorTest, ProcedureParameterTest)
 {
-	PROCEDURE_TEST_LIST();
+	std::map<std::string, std::shared_ptr<IStoredProcedure>> testProcedureMap;
+	PROCEDURE_TEST_LIST(testProcedureMap);
 
 	ODBCConnector connector;
 
@@ -95,7 +96,7 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 		std::cout << "---------------------------------------" << std::endl;
 		for (const auto& notMatchedProcedure : notMatchedProcedureList)
 		{
-			std::cout << "Procedure was not matched : " << notMatchedProcedure << std::endl;
+			std::cout << "Procedure was not matched. ProcedureName[" << notMatchedProcedure << "]" << std::endl;
 		}
 		std::cout << "---------------------------------------" << std::endl << std::endl << std::endl;
 	}

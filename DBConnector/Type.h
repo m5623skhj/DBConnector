@@ -35,3 +35,6 @@ public:
 private:
     std::string thisString = "";
 };
+
+using ProcedureName = std::string;
+using ProcedureTypeName = std::string;

@@ -1,29 +1,49 @@
-﻿#include <iostream>
-#include "DBConnector.h"
+#include "PreCompile.h"
+#include "BuildConfg.h"
+#include <iostream>
+#include <Windows.h>
+#include <sql.h>
+#include <sqlext.h>
 
-// 외부에서 다른 타입으로 캐스팅하지 말고, 내부에서 타입까지 정해주면 좋겠음
+#include "ODBCConnector.h"
+#include "StoredProcedure.h"
 
-int main()
+#include "GoogleTest.h"
+
+using namespace std;
+
+int main() 
 {
-    DBConnector connect;
+#if UNIT_TEST
+    if (GTestHelper::StartTest() == false)
+    {
+        cout << "GTest failed" << std::endl;
+        return 0;
+    }
+    cout << "-------------" << endl;
+    cout << "GTest Success" << endl;
+    cout << "-------------" << endl << endl << endl;
+#endif
 
-    connect.ConnectDB();
-    connect.DBSendQuery("SELECT * FROM testtbl");
-
-    auto row = connect.GetRow();
+    ODBCConnector connector;
     do
     {
-        if (row["id"] == nullptr || row["tablename"] == nullptr || row["no"] == nullptr)
+        if (connector.ConnectDB(L"OptionFile/DBConnectFile.txt") == false)
         {
-            return 0;
+            cout << "ConnectDB() failed" << endl;
+            break;
         }
 
-        std::cout << row["id"] << " " << row["tablename"] << " " << row["no"] << std::endl;
-        row.NextRow();
-    } while (row.IsEndRow() == false);
+        if (connector.InitDB() == false)
+        {
+            cout << "InitDB() failed" << endl;
+            break;
+        }
 
-    connect.FreeResult();
-    connect.CloseDB();
+        cout << "InitDB() Success" << endl;
+    } while (false);
+
+    connector.DisconnectDB();
 
     return 0;
 }

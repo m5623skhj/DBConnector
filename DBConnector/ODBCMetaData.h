@@ -49,16 +49,19 @@ public:
 	ODBCMetaData& operator=(const ODBCMetaData&) = delete;
 
 public:
-	bool GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* schemaName, OUT std::set<std::string>& procedureNameList);
-	bool MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const std::set<std::string>& procedureNameList);
+	bool GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* schemaName, OUT std::set<ProcedureName>& procedureNameList);
+	bool MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const std::set<ProcedureName>& procedureNameList);
 
 private:
-	bool MakeInputColumnToProcedureInfo(SQLHSTMT stmtHandle, const std::string& procedureName, const WCHAR* procedureNameBuffer, OUT std::shared_ptr<ProcedureInfo> outProcdureInfo);
-	bool MakeOutputColumnToProcedureInfo(SQLHSTMT stmtHandle, const std::string& procedureName, OUT std::shared_ptr<ProcedureInfo> procdureInfo);
+	bool MakeInputColumnToProcedureInfo(SQLHSTMT stmtHandle, const ProcedureName& procedureName, const WCHAR* procedureNameBuffer, OUT std::shared_ptr<ProcedureInfo> outProcdureInfo);
+	bool MakeOutputColumnToProcedureInfo(SQLHSTMT stmtHandle, const ProcedureName& procedureName, OUT std::shared_ptr<ProcedureInfo> procdureInfo);
+
+public:
+	const ProcedureInfo * const GetProcedureInfo(ProcedureName procedureName) const;
 
 private:
 	std::wstring catalogName;
-	std::map<std::string, std::shared_ptr<ProcedureInfo>> procedureInfoMap;
+	std::map<ProcedureName, std::shared_ptr<ProcedureInfo>> procedureInfoMap;
 };
 
 std::wstring GetDataTypeName(SQLSMALLINT inDataType);

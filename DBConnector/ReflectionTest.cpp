@@ -1,8 +1,10 @@
 #include "PreCompile.h"
+#include "BuildConfg.h"
 
 #include "GoogleTest.h"
 #include "Reflection.h"
 
+#if UNIT_TEST
 struct Base
 {
 	DEFINE_CLASS_INFO(Base)
@@ -51,3 +53,4 @@ TEST(ReflectionTest, CastTest)
 	auto willBeNull2 = base.GetTypeInfo().GetSuper();
 	EXPECT_EQ(willBeNull2, nullptr);
 }
+#endif

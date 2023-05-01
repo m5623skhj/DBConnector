@@ -11,6 +11,9 @@
 class Property;
 class TypeInfo;
 
+using PropertyName = std::string;
+using PropertyTypeName = std::string;
+
 template <typename T>
 concept HasSuper = requires
 {
@@ -120,10 +123,10 @@ public:
 	}
 
 	void AddProperty(const Property& inProperty);
-	void GetAllProperties(OUT std::vector<std::pair<std::string, std::string>>& propertyList) const;
+	void GetAllProperties(OUT std::vector<std::pair<ProcedureName, ProcedureTypeName>>& propertyList) const;
 
 private:
-	using PropertyMap = std::map<std::string, const Property>;
+	using PropertyMap = std::map<PropertyName, const Property>;
 
 	size_t hashCode;
 	const char* name = nullptr;

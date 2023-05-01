@@ -1,4 +1,5 @@
 #pragma once
+#include "BuildConfg.h"
 #include "Reflection.h"
 #include <map>
 #include <typeinfo>
@@ -20,6 +21,7 @@ class test : public IStoredProcedure
 	REGISTER_PROPERTY(_id);
 	REGISTER_PROPERTY(_id2);
 	REGISTER_PROPERTY(_id3);
+	REGISTER_PROPERTY(test);
 
 public:
 	virtual ~test() {}
@@ -28,19 +30,17 @@ public:
 	int _id = 0;
 	int _id2 = 0;
 	int _id3 = 0;
+	FString test;
 };
 
-class test2 : public IStoredProcedure
-{
-	DEFINE_CLASS_INFO(test2);
+#if UNIT_TEST
+	#define INPUT_TEST_PROCEDURE_MAP(Procedure){\
+		testProcedureMap.emplace(Procedure::StaticTypeInfo().GetName(), std::make_shared<Procedure>());\
+	}
+	
+	#define PROCEDURE_TEST_LIST(){\
+		INPUT_TEST_PROCEDURE_MAP(test)\
+	}
 
-	REGISTER_PROPERTY(_id);
-	REGISTER_PROPERTY(_testString);
-
-public:
-	virtual ~test2() {}
-
-public:
-	float _id = 0.f;
-	FString _testString;
-};
+	static std::map<std::string, std::shared_ptr<IStoredProcedure>> testProcedureMap;
+#endif

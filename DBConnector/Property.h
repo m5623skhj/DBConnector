@@ -8,12 +8,12 @@
 class Property
 {
 public:
-	const std::string& GetName() const
+	const PropertyName& GetName() const
 	{
 		return name;
 	}
 
-	const std::string& GetTypeName() const
+	const PropertyTypeName& GetTypeName() const
 	{
 		return typeName;
 	}
@@ -46,7 +46,7 @@ public:
 		return type;
 	}
 
-	Property(const char* inName, const std::string& inTypeName, TypeInfo& owner)
+	Property(const char* inName, const PropertyTypeName& inTypeName, TypeInfo& owner)
 		: name(inName)
 		, typeName(inTypeName)
 		, type(owner)
@@ -55,8 +55,8 @@ public:
 	}
 
 private:
-	const std::string name;
-	const std::string typeName;
+	const PropertyName name;
+	const PropertyTypeName typeName;
 	const TypeInfo& type;
 };
 

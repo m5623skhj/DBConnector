@@ -6,6 +6,8 @@
 
 class ODBCMetaData;
 
+struct ProcedureInfo;
+
 class ODBCConnector
 {
 public:
@@ -41,6 +43,9 @@ private:
 	SQLHENV enviromentHandle;
 	SQLHDBC dbcHandle;
 	SQLHSTMT stmtHandle;
+
+public:
+	const ProcedureInfo * const GetProcedureInfo(ProcedureName procedureName) const;
 
 private:
 	std::unique_ptr<ODBCMetaData> metaData;

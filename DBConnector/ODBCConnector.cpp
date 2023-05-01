@@ -105,7 +105,7 @@ bool ODBCConnector::DBSendQuery(std::wstring query)
 
 bool ODBCConnector::MakeProcedureFromDB()
 {
-	std::set<std::string> procedureNameList;
+	std::set<ProcedureName> procedureNameList;
 	if (metaData == nullptr)
 	{
 		return false;
@@ -170,4 +170,9 @@ bool ODBCConnector::ConnectSQLDriver()
 	}
 
 	return true;
+}
+
+const ProcedureInfo * const ODBCConnector::GetProcedureInfo(ProcedureName procedureName) const
+{
+	return metaData->GetProcedureInfo(procedureName);
 }

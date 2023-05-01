@@ -1,5 +1,9 @@
 #pragma once
 #include <sqlext.h>
 
-void PrintSQLErrorMessage(SQLHSTMT stmtHandle);
-bool SQLIsSuccess(SQLRETURN returnValue);
+namespace ODBCUtil
+{
+	void PrintSQLErrorMessage(SQLHSTMT stmtHandle);
+	bool SQLIsSuccess(SQLRETURN returnValue);
+	bool IsSameType(const std::string& lhs, const std::string& rhs);
+}

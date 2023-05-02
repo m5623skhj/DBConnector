@@ -6,6 +6,7 @@
 #include "ODBCMetaData.h"
 #include "ODBCUtil.h"
 #include <utility>
+#include <vector>
 
 #if UNIT_TEST
 TEST(DBConnectorTest, DBInitializeTest)
@@ -21,7 +22,9 @@ TEST(DBConnectorTest, DBInitializeTest)
 TEST(DBConnectorTest, ProcedureParameterTest)
 {
 	std::map<std::string, std::shared_ptr<IStoredProcedure>> testProcedureMap;
-	PROCEDURE_TEST_LIST(testProcedureMap);
+	std::map<std::string, std::vector<std::pair<ProcedureName, ProcedureTypeName>>> resultPropertyMap;
+
+	PROCEDURE_TEST_LIST(testProcedureMap, resultPropertyMap);
 
 	ODBCConnector connector;
 
@@ -62,23 +65,28 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 
 		auto matchedProcedureInfo = connector.GetProcedureInfo(testProcedure.first);
 		ASSERT_NE(matchedProcedureInfo, nullptr);
+		auto matchedProcedureResultColumnInfo = resultPropertyMap.find(testProcedure.first);
+		ASSERT_NE(matchedProcedureResultColumnInfo, resultPropertyMap.end());
 
-		std::vector<std::pair<ProcedureName, ProcedureTypeName>> dbProperties;
+		std::vector<std::pair<ProcedureName, ProcedureTypeName>> dbInputProperties;
+		std::vector<std::pair<ProcedureName, ProcedureTypeName>> dbResultProperties;
 		char UTF8_name[256], UTF8_dataTypeName[256];
 		for (const auto& inputColmun : matchedProcedureInfo->inputColumnInfoList)
 		{
 			UTF16ToUTF8(inputColmun.name.c_str(), UTF8_name);
 			UTF16ToUTF8(inputColmun.dataTypeName.c_str(), UTF8_dataTypeName);
-			dbProperties.emplace_back(std::make_pair(UTF8_name, UTF8_dataTypeName));
+			dbInputProperties.emplace_back(std::make_pair(UTF8_name, UTF8_dataTypeName));
 		}
 		for (const auto& resultColmun : matchedProcedureInfo->resultColumnInfoList)
 		{
 			UTF16ToUTF8(resultColmun.name.c_str(), UTF8_name);
 			UTF16ToUTF8(resultColmun.dataTypeName.c_str(), UTF8_dataTypeName);
-			dbProperties.emplace_back(std::make_pair(UTF8_name, UTF8_dataTypeName));
+			dbResultProperties.emplace_back(std::make_pair(UTF8_name, UTF8_dataTypeName));
 		}
 
-		bool isMatched = columnMatch(cppProperties, dbProperties);
+		bool isMatched = true;
+		isMatched = columnMatch(cppProperties, dbInputProperties) && isMatched;
+		isMatched = columnMatch(matchedProcedureResultColumnInfo->second, dbResultProperties) && isMatched;
 		if (isMatched == false)
 		{
 			notMatchedProcedureList.emplace_back(testProcedure.first);

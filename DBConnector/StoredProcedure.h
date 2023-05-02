@@ -37,11 +37,20 @@ public:
 };
 
 #if UNIT_TEST
-	#define INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, Procedure){\
+	#define INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, Procedure)\
+	{\
 		TestProcedureMap.emplace(Procedure::StaticTypeInfo().GetName(), std::make_shared<Procedure>());\
+		ResultPropertyMap.emplace(Procedure::StaticTypeInfo().GetName(), std::vector<std::pair<ProcedureName, ProcedureTypeName>>());\
+		{\
+			auto it = ResultPropertyMap.find(Procedure::StaticTypeInfo().GetName());\
+			if (it != ResultPropertyMap.end())\
+			{\
+				Procedure::ResultType::StaticTypeInfo().GetAllProperties(it->second);\
+			}\
+		}\
 	}
 	
-	#define PROCEDURE_TEST_LIST(TestProcedureMap){\
-		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, test)\
+	#define PROCEDURE_TEST_LIST(TestProcedureMap, ResultPropertyMap){\
+		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, test)\
 	}
 #endif

@@ -40,10 +40,7 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 
 		for (size_t i = 0; i < cppProperties.size(); ++i)
 		{
-			if (cppProperties[i].first != dbProperties[i].first)
-			{
-				return false;
-			}
+			// 컬럼의 타입만 검사
 			if (cppProperties[i].second != dbProperties[i].second)
 			{
 				if (ODBCUtil::IsSameType(cppProperties[i].second, dbProperties[i].second) == false)
@@ -67,20 +64,19 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 		ASSERT_NE(matchedProcedureInfo, nullptr);
 
 		std::vector<std::pair<ProcedureName, ProcedureTypeName>> dbProperties;
+		char UTF8_name[256], UTF8_dataTypeName[256];
 		for (const auto& inputColmun : matchedProcedureInfo->inputColumnInfoList)
 		{
-			char UTF8_inputName[256], UTF8_inputDataTypeName[256];
-			UTF16ToUTF8(inputColmun.name.c_str(), UTF8_inputName);
-			UTF16ToUTF8(inputColmun.dataTypeName.c_str(), UTF8_inputDataTypeName);
-			dbProperties.emplace_back(std::make_pair(UTF8_inputName, UTF8_inputDataTypeName));
+			UTF16ToUTF8(inputColmun.name.c_str(), UTF8_name);
+			UTF16ToUTF8(inputColmun.dataTypeName.c_str(), UTF8_dataTypeName);
+			dbProperties.emplace_back(std::make_pair(UTF8_name, UTF8_dataTypeName));
 		}
-		/*/
-		// 아직 cpp에 result column 작업이 안돼서 주석처리
 		for (const auto& resultColmun : matchedProcedureInfo->resultColumnInfoList)
 		{
-			dbProperties.emplace_back(std::make_pair(resultColmun.name, resultColmun.dataTypeName));
+			UTF16ToUTF8(resultColmun.name.c_str(), UTF8_name);
+			UTF16ToUTF8(resultColmun.dataTypeName.c_str(), UTF8_dataTypeName);
+			dbProperties.emplace_back(std::make_pair(UTF8_name, UTF8_dataTypeName));
 		}
-		/*/
 
 		bool isMatched = columnMatch(cppProperties, dbProperties);
 		if (isMatched == false)

@@ -5,6 +5,7 @@
 #include <typeinfo>
 #include <typeindex>
 #include "Type.h"
+#include "ProcedureType.h"
 
 class IStoredProcedure
 {
@@ -21,6 +22,7 @@ class test : public IStoredProcedure
 	REGISTER_PROPERTY(_id);
 	REGISTER_PROPERTY(_id2);
 	REGISTER_PROPERTY(_id3);
+	REGISTER_PROPERTY(test);
 
 public:
 	virtual ~test() {}
@@ -30,6 +32,8 @@ public:
 	int _id2 = 0;
 	int _id3 = 0;
 	FString test;
+
+	using ResultType = TestReulstType;
 };
 
 #if UNIT_TEST

@@ -4,6 +4,7 @@
 #include <Windows.h>
 #include <sql.h>
 #include <sqlext.h>
+#include "Path.h"
 
 #include "ODBCConnector.h"
 #include "StoredProcedure.h"
@@ -11,6 +12,25 @@
 #include "GoogleTest.h"
 
 using namespace std;
+
+bool TryDBMigration()
+{
+    char cwd[512];
+    if (_getcwd(cwd, sizeof(cwd)) == NULL)
+    {
+        return false;
+    }
+
+    std::string migratorPath = cwd + MIGRATOR_PATH;
+
+    int migratorResult = system(migratorPath.c_str());
+    if (migratorResult != 0)
+    {
+        return false;
+    }
+
+    return true;
+}
 
 int main() 
 {
@@ -20,10 +40,21 @@ int main()
         cout << "GTest failed" << std::endl;
         return 0;
     }
-    cout << "-------------" << endl;
-    cout << "GTest Success" << endl;
-    cout << "-------------" << endl << endl << endl;
+    cout << "---------------------" << endl;
+    cout << "GTest successed" << endl;
+    cout << "---------------------" << endl << endl << endl;
 #endif
+
+    if (TryDBMigration() == false)
+    {
+        cout << "---------------------" << endl;
+        cout << "Migration failed" << endl;
+        cout << "---------------------" << endl << endl << endl;
+        return 0;
+    }
+    cout << "---------------------" << endl;
+    cout << "Migration successed" << endl;
+    cout << "---------------------" << endl << endl << endl;
 
     ODBCConnector connector;
     do

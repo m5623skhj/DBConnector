@@ -43,7 +43,7 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 
 		for (size_t i = 0; i < cppProperties.size(); ++i)
 		{
-			// 컬럼의 타입만 검사
+			// 컬럼의 타입과 순서만 검사
 			if (cppProperties[i].second != dbProperties[i].second)
 			{
 				if (ODBCUtil::IsSameType(cppProperties[i].second, dbProperties[i].second) == false)
@@ -69,7 +69,6 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 		ASSERT_NE(matchedProcedureResultColumnInfo, resultPropertyMap.end());
 
 		std::vector<std::pair<ProcedureName, ProcedureTypeName>> dbInputProperties;
-		std::vector<std::pair<ProcedureName, ProcedureTypeName>> dbResultProperties;
 		char UTF8_name[256], UTF8_dataTypeName[256];
 		for (const auto& inputColmun : matchedProcedureInfo->inputColumnInfoList)
 		{
@@ -77,6 +76,8 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 			UTF16ToUTF8(inputColmun.dataTypeName.c_str(), UTF8_dataTypeName);
 			dbInputProperties.emplace_back(std::make_pair(UTF8_name, UTF8_dataTypeName));
 		}
+		
+		std::vector<std::pair<ProcedureName, ProcedureTypeName>> dbResultProperties;
 		for (const auto& resultColmun : matchedProcedureInfo->resultColumnInfoList)
 		{
 			UTF16ToUTF8(resultColmun.name.c_str(), UTF8_name);

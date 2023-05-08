@@ -36,6 +36,21 @@ public:
 	using ResultType = TestReulstType;
 };
 
+class update_test : public IStoredProcedure
+{
+	DEFINE_CLASS_INFO(update_test);
+
+	REGISTER_PROPERTY(_id);
+
+public:
+	virtual ~update_test() {}
+
+public:
+	int _id = 0;
+
+	using ResultType = DB_IgnoreType;
+};
+
 #if UNIT_TEST
 	#define INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, Procedure)\
 	{\

@@ -22,3 +22,10 @@ struct TestReulstType
 		GetTypeInfo().GetAllProperties(propertyList);
 	}
 };
+
+struct DB_IgnoreType
+{
+	virtual void GetResultColumnProperty(OUT std::vector<std::pair<ProcedureName, ProcedureTypeName>>& propertyList)
+	{
+	}
+};

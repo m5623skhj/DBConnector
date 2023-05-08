@@ -2,7 +2,6 @@
 #include "ODBCMetaData.h"
 #include "ODBCConnector.h"
 #include "ODBCConst.h"
-#include "ODBCUtil.h"
 
 #include <sql.h>
 #include <sqlext.h>

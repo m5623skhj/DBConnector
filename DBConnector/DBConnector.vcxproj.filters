@@ -25,11 +25,20 @@
     <Filter Include="소스 파일\StoredProcedure">
       <UniqueIdentifier>{b7932c3f-bbd4-4d91-87b2-967204c12b1e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Reflection">
+      <UniqueIdentifier>{2d8ed9c3-cf4d-4e7d-aba5-adce9c1db913}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\GoogleTest">
+      <UniqueIdentifier>{935e852b-1164-4c9e-a115-fa05ea4af219}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\BuildConfig">
+      <UniqueIdentifier>{40bb707a-5b79-48b8-a1e6-9eba0749ae8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Types">
+      <UniqueIdentifier>{811260ae-2cc5-4146-9b99-a76ab62c6603}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="DBConnector.cpp">
       <Filter>소스 파일\DBConnector</Filter>
     </ClCompile>
@@ -42,7 +51,7 @@
     <ClCompile Include="..\..\..\..\Desktop\Common\PreCompile.cpp">
       <Filter>소스 파일\Include</Filter>
     </ClCompile>
-    <ClCompile Include="main2.cpp">
+    <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="ODBCMetaData.cpp">
@@ -51,8 +60,20 @@
     <ClCompile Include="ODBCUtil.cpp">
       <Filter>소스 파일\ODBC</Filter>
     </ClCompile>
-    <ClCompile Include="StoredProcedure.cpp">
-      <Filter>소스 파일\StoredProcedure</Filter>
+    <ClCompile Include="GoogleTest.cpp">
+      <Filter>소스 파일\GoogleTest</Filter>
+    </ClCompile>
+    <ClCompile Include="ReflectionTest.cpp">
+      <Filter>소스 파일\GoogleTest</Filter>
+    </ClCompile>
+    <ClCompile Include="DBConnectorTest.cpp">
+      <Filter>소스 파일\GoogleTest</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertyMacro.h">
+      <Filter>소스 파일\Reflection</Filter>
+    </ClCompile>
+    <ClCompile Include="TypeInfo.cpp">
+      <Filter>소스 파일\Reflection</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -73,6 +94,33 @@
     </ClInclude>
     <ClInclude Include="StoredProcedure.h">
       <Filter>소스 파일\StoredProcedure</Filter>
+    </ClInclude>
+    <ClInclude Include="Reflection.h">
+      <Filter>소스 파일\Reflection</Filter>
+    </ClInclude>
+    <ClInclude Include="GoogleTest.h">
+      <Filter>소스 파일\GoogleTest</Filter>
+    </ClInclude>
+    <ClInclude Include="Property.h">
+      <Filter>소스 파일\Reflection</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeInfoMacro.h">
+      <Filter>소스 파일\Reflection</Filter>
+    </ClInclude>
+    <ClInclude Include="TypeInfo.h">
+      <Filter>소스 파일\Reflection</Filter>
+    </ClInclude>
+    <ClInclude Include="BuildConfg.h">
+      <Filter>소스 파일\BuildConfig</Filter>
+    </ClInclude>
+    <ClInclude Include="Type.h">
+      <Filter>소스 파일\Types</Filter>
+    </ClInclude>
+    <ClInclude Include="ProcedureType.h">
+      <Filter>소스 파일\StoredProcedure</Filter>
+    </ClInclude>
+    <ClInclude Include="Path.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

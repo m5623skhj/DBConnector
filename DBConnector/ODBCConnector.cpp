@@ -1,7 +1,5 @@
 #include "PreCompile.h"
 #include "ODBCConnector.h"
-#include "ODBCConst.h"
-#include "ODBCMetaData.h"
 #include "ODBCUtil.h"
 
 #include "Parse.h"
@@ -89,6 +87,16 @@ bool ODBCConnector::InitDB()
 }
 
 bool ODBCConnector::DBSendQuery(std::wstring query)
+{
+	if (SQLExecute(stmtHandle) != SQL_SUCCESS)
+	{
+		return false;
+	}
+
+	return true;
+}
+
+bool ODBCConnector::DBSendQueryWithPrepare(std::wstring query)
 {
 	if (SQLPrepare(stmtHandle, (SQLWCHAR*)query.c_str(), SQL_NTS) != SQL_SUCCESS)
 	{

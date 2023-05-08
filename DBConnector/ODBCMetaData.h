@@ -5,6 +5,7 @@
 #include <vector>
 #include <sqltypes.h>
 #include <memory>
+#include "ODBCUtil.h"
 
 class ODBCConnector;
 
@@ -34,6 +35,29 @@ struct ProcedureInfo
 	std::wstring sql;
 
 	bool SettingDefaultSPMaker(SQLHSTMT stmtHandle);
+
+	bool SettingSPMaker(SQLHSTMT stmtHandle) const
+	{
+		return true;
+	}
+
+	template <typename T>
+	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const T& input) const
+	{
+		return ODBCUtil::SettingSPMaker(stmtHandle, parameterLocation, input);
+	}
+
+	template <typename T, typename... Args>
+	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const T& input, Args... args) const
+	{
+		if (SettingSPMaker(stmtHandle, parameterLocation, input) == false)
+		{
+			return false;
+		}
+
+		int nextParameterLocation = parameterLocation + 1;
+		return SettingSPMaker(stmtHandle, nextParameterLocation, args...);
+	}
 
 private:
 	std::shared_ptr<void> GetDefaultValue(short dataType);

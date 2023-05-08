@@ -1,5 +1,7 @@
 #pragma once
 
+#define SP_PARAMETER_LOCATION 1
+
 enum COLUMN_NUMBER
 {
 	PROCEDURE_NAME = 3u,

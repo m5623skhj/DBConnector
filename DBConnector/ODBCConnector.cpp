@@ -18,6 +18,12 @@ ODBCConnector::~ODBCConnector()
 
 }
 
+ODBCConnector& ODBCConnector::GetInst()
+{
+	static ODBCConnector instance;
+	return instance;
+}
+
 bool ODBCConnector::ConnectDB(const std::wstring& optionFileName)
 {
 	if (OptionParsing(optionFileName) == false)

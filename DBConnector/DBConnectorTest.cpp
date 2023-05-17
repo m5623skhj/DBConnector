@@ -11,7 +11,7 @@
 #if UNIT_TEST
 TEST(DBConnectorTest, DBInitializeTest)
 {
-	ODBCConnector connector;
+	ODBCConnector& connector = ODBCConnector::GetInst();
 
 	ASSERT_EQ(connector.ConnectDB(L"OptionFile/DBConnectFile.txt"), true);
 	EXPECT_EQ(connector.InitDB(), true);
@@ -26,7 +26,7 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 
 	PROCEDURE_TEST_LIST(testProcedureMap, resultPropertyMap);
 
-	ODBCConnector connector;
+	ODBCConnector& connector = ODBCConnector::GetInst();
 
 	ASSERT_EQ(connector.ConnectDB(L"OptionFile/DBConnectFile.txt"), true);
 	EXPECT_EQ(connector.InitDB(), true);

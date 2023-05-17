@@ -57,7 +57,7 @@ int main()
     cout << "---------------------" << endl << endl << endl;
 #endif
 
-    ODBCConnector connector;
+    ODBCConnector& connector = ODBCConnector::GetInst();
     do
     {
         if (connector.ConnectDB(L"OptionFile/DBConnectFile.txt") == false)

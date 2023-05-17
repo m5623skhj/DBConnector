@@ -10,12 +10,15 @@ struct ProcedureInfo;
 
 class ODBCConnector
 {
-public:
+private:
 	ODBCConnector();
 	~ODBCConnector();
 
 	ODBCConnector(const ODBCConnector&) = delete;
 	ODBCConnector& operator=(const ODBCConnector&) = delete;
+
+public:
+	static ODBCConnector& GetInst();
 
 public:
 	bool ConnectDB(const std::wstring& optionFileName);

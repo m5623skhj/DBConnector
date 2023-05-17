@@ -44,7 +44,13 @@ struct ProcedureInfo
 	template <typename T>
 	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const T& input) const
 	{
-		return ODBCUtil::SettingSPMaker(stmtHandle, parameterLocation, input);
+		int index = parameterLocation - 1;
+		if (inputColumnInfoList.size() < index)
+		{
+			return false;
+		}
+
+		return ODBCUtil::SettingSPMaker(stmtHandle, parameterLocation, inputColumnInfoList[index].dataType, input);
 	}
 
 	template <typename T, typename... Args>
@@ -87,5 +93,3 @@ private:
 	std::wstring catalogName;
 	std::map<ProcedureName, std::shared_ptr<ProcedureInfo>> procedureInfoMap;
 };
-
-std::wstring GetDataTypeName(SQLSMALLINT inDataType);

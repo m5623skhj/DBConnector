@@ -7,10 +7,18 @@ namespace ODBCUtil
 	bool SQLIsSuccess(SQLRETURN returnValue);
 	bool IsSameType(const std::string& lhs, const std::string& rhs);
 
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const std::string& input);
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const int& input);
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const INT64& input);
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const float& input);
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const double& input);
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const bool& input);
+	std::wstring GetDataTypeName(SQLSMALLINT inDataType);
+
+	template <typename T>
+	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, SQLSMALLINT dataType, const T& input)
+	{
+		if (ODBCUtil::SQLIsSuccess(SQLBindParameter(stmtHandle, parameterLocation, SQL_PARAM_INPUT, SQL_C_SLONG, dataType
+			, 0, 0, (SQLPOINTER)(&input), 0, NULL)) == false)
+		{
+			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
+			return false;
+		}
+
+		return true;
+	}
 }

@@ -50,69 +50,25 @@ namespace ODBCUtil
 		return false;
 	}
 
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const std::string& input)
+	std::wstring GetDataTypeName(SQLSMALLINT inDataType)
 	{
-		if (ODBCUtil::SQLIsSuccess(SQLBindParameter(stmtHandle, parameterLocation, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_VARCHAR, 0, 0, (SQLPOINTER)(&input), 0, NULL)) == false)
+		switch (inDataType)
 		{
-			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
-			return false;
+		case SQL_BIGINT:
+			return L"int64";
+		case SQL_NUMERIC:
+		case SQL_DECIMAL:
+		case SQL_INTEGER:
+			return L"int";
+		case SQL_FLOAT:
+		case SQL_REAL:
+			return L"float";
+		case SQL_VARCHAR:
+			return L"string";
+		case SQL_BIT:
+			return L"bool";
+		default:
+			return L"";
 		}
-
-		return true;
-	}
-
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const int& input)
-	{
-		if (ODBCUtil::SQLIsSuccess(SQLBindParameter(stmtHandle, parameterLocation, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_INTEGER, 0, 0, (SQLPOINTER)(&input), 0, NULL)) == false)
-		{
-			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
-			return false;
-		}
-
-		return true;
-	}
-	
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const INT64& input)
-	{
-		if (ODBCUtil::SQLIsSuccess(SQLBindParameter(stmtHandle, parameterLocation, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_BIGINT, 0, 0, (SQLPOINTER)(&input), 0, NULL)) == false)
-		{
-			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
-			return false;
-		}
-
-		return true;
-	}
-	
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const float& input)
-	{
-		if (ODBCUtil::SQLIsSuccess(SQLBindParameter(stmtHandle, parameterLocation, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_FLOAT, 0, 0, (SQLPOINTER)(&input), 0, NULL)) == false)
-		{
-			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
-			return false;
-		}
-
-		return true;
-	}
-	
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const double& input)
-	{
-		if (ODBCUtil::SQLIsSuccess(SQLBindParameter(stmtHandle, parameterLocation, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_REAL, 0, 0, (SQLPOINTER)(&input), 0, NULL)) == false)
-		{
-			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
-			return false;
-		}
-
-		return true;
-	}
-	
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const bool& input)
-	{
-		if (ODBCUtil::SQLIsSuccess(SQLBindParameter(stmtHandle, parameterLocation, SQL_PARAM_INPUT, SQL_C_SLONG, SQL_BIT, 0, 0, (SQLPOINTER)(&input), 0, NULL)) == false)
-		{
-			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
-			return false;
-		}
-
-		return true;
 	}
 }

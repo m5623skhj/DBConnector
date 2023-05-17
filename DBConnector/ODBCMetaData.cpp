@@ -311,7 +311,7 @@ bool ODBCMetaData::MakeOutputColumnToProcedureInfo(SQLHSTMT stmtHandle, const Pr
 		}
 
 		procdureInfo->resultColumnInfoList.emplace_back(ColumnInfo(
-			resultColumn.name, resultColumn.dataType, resultColumn.dataType, GetDataTypeName(resultColumn.dataType), resultColumn.columnSize));
+			resultColumn.name, resultColumn.dataType, resultColumn.dataType, ODBCUtil::GetDataTypeName(resultColumn.dataType), resultColumn.columnSize));
 	}
 	SQLCloseCursor(stmtHandle);
 
@@ -327,26 +327,4 @@ const ProcedureInfo * const ODBCMetaData::GetProcedureInfo(ProcedureName procedu
 	}
 
 	return it->second.get();
-}
-
-std::wstring GetDataTypeName(SQLSMALLINT inDataType)
-{
-	switch (inDataType)
-	{
-	case SQL_BIGINT:
-		return L"int64";
-	case SQL_NUMERIC:
-	case SQL_DECIMAL:
-	case SQL_INTEGER:
-		return L"int";
-	case SQL_FLOAT:
-	case SQL_REAL:
-		return L"float";
-	case SQL_VARCHAR:
-		return L"string";
-	case SQL_BIT:
-		return L"bool";
-	default:
-		return L"";
-	}
 }

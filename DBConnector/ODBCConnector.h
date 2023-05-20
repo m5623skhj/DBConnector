@@ -25,8 +25,8 @@ public:
 	void DisconnectDB();
 
 	bool InitDB();
-	bool DBSendQuery(std::wstring query);
-	bool DBSendQueryWithPrepare(std::wstring query);
+	bool DBSendQuery(const std::wstring& query);
+	bool DBSendQueryWithPrepare(const std::wstring& query);
 
 	template <typename... Args>
 	bool CallStoredProcedure(const ProcedureName& procedureName, Args... args)

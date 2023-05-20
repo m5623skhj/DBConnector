@@ -92,7 +92,7 @@ bool ODBCConnector::InitDB()
 	return true;
 }
 
-bool ODBCConnector::DBSendQuery(std::wstring query)
+bool ODBCConnector::DBSendQuery(const std::wstring& query)
 {
 	if (SQLExecute(stmtHandle) != SQL_SUCCESS)
 	{
@@ -102,7 +102,7 @@ bool ODBCConnector::DBSendQuery(std::wstring query)
 	return true;
 }
 
-bool ODBCConnector::DBSendQueryWithPrepare(std::wstring query)
+bool ODBCConnector::DBSendQueryWithPrepare(const std::wstring& query)
 {
 	if (SQLPrepare(stmtHandle, (SQLWCHAR*)query.c_str(), SQL_NTS) != SQL_SUCCESS)
 	{

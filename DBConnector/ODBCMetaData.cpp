@@ -318,7 +318,7 @@ bool ODBCMetaData::MakeOutputColumnToProcedureInfo(SQLHSTMT stmtHandle, const Pr
 	return true;
 }
 
-const ProcedureInfo * const ODBCMetaData::GetProcedureInfo(ProcedureName procedureName) const
+const ProcedureInfo* const ODBCMetaData::GetProcedureInfo(ProcedureName& procedureName) const
 {
 	auto it = procedureInfoMap.find(procedureName);
 	if (it == procedureInfoMap.end())

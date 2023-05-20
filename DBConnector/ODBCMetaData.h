@@ -87,7 +87,7 @@ private:
 	bool MakeOutputColumnToProcedureInfo(SQLHSTMT stmtHandle, const ProcedureName& procedureName, OUT std::shared_ptr<ProcedureInfo> procdureInfo);
 
 public:
-	const ProcedureInfo * const GetProcedureInfo(ProcedureName procedureName) const;
+	const ProcedureInfo* const GetProcedureInfo(ProcedureName& procedureName) const;
 
 private:
 	std::wstring catalogName;

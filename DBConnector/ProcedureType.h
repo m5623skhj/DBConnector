@@ -25,6 +25,8 @@ struct TestReulstType
 
 struct DB_IgnoreType
 {
+	DEFINE_CLASS_INFO(DB_IgnoreType);
+
 	virtual void GetResultColumnProperty(OUT std::vector<std::pair<ProcedureName, ProcedureTypeName>>& propertyList)
 	{
 	}

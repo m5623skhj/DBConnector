@@ -67,5 +67,6 @@ public:
 	
 	#define PROCEDURE_TEST_LIST(TestProcedureMap, ResultPropertyMap){\
 		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, test)\
+		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, update_test)\
 	}
 #endif

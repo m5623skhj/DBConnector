@@ -8,6 +8,8 @@
 
 struct ProcedureInfo;
 
+// TODO :
+// DBConnectionPool을 유지할 수 있도록 수정
 class ODBCConnector
 {
 private:

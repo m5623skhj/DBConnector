@@ -155,12 +155,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\Desktop\Common\LanServer.cpp" />
+    <ClCompile Include="..\..\..\..\Desktop\Common\LanServerSerializeBuf.cpp" />
+    <ClCompile Include="..\..\..\..\Desktop\Common\Log.cpp" />
     <ClCompile Include="..\..\..\..\Desktop\Common\Parse.cpp" />
     <ClCompile Include="..\..\..\..\Desktop\Common\PreCompile.cpp" />
+    <ClCompile Include="..\..\..\..\Desktop\Common\Ringbuffer.cpp" />
     <ClCompile Include="DBConnector.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="DBConnectorTest.cpp" />
+    <ClCompile Include="DBServer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ODBCConnector.cpp" />
     <ClCompile Include="ODBCMetaData.cpp" />
@@ -175,6 +180,7 @@
     <ClInclude Include="DBConnector.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="DBServer.h" />
     <ClInclude Include="GoogleTest.h" />
     <ClInclude Include="ODBCConnector.h" />
     <ClInclude Include="ODBCConst.h" />

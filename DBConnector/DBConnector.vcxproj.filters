@@ -37,6 +37,9 @@
     <Filter Include="소스 파일\Types">
       <UniqueIdentifier>{811260ae-2cc5-4146-9b99-a76ab62c6603}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\DBServer">
+      <UniqueIdentifier>{fd38075c-7c3c-4e43-99de-822325884fe5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DBConnector.cpp">
@@ -74,6 +77,21 @@
     </ClCompile>
     <ClCompile Include="TypeInfo.cpp">
       <Filter>소스 파일\Reflection</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\Common\LanServer.cpp">
+      <Filter>소스 파일\Include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\Common\LanServerSerializeBuf.cpp">
+      <Filter>소스 파일\Include</Filter>
+    </ClCompile>
+    <ClCompile Include="DBServer.cpp">
+      <Filter>소스 파일\DBServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\Common\Ringbuffer.cpp">
+      <Filter>소스 파일\Include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\Common\Log.cpp">
+      <Filter>소스 파일\Include</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +139,9 @@
     </ClInclude>
     <ClInclude Include="Path.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DBServer.h">
+      <Filter>소스 파일\DBServer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

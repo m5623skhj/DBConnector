@@ -5,6 +5,7 @@
 #include <sql.h>
 #include <sqlext.h>
 #include "Path.h"
+#include "DBServer.h"
 
 #include "ODBCConnector.h"
 #include "StoredProcedure.h"
@@ -88,6 +89,8 @@ int main()
         return 0;
     }
     
+    DBServer dbServer(L"DBServerOptionFile.txt");
+
     connector.DisconnectDB();
 
     return 0;

@@ -3,10 +3,10 @@
 
 DBServer::DBServer(const std::wstring& optionFile)
 {
-	if (Start(optionFile.c_str()) == false)
-	{
-		g_Dump.Crash();
-	}
+	//if (Start(optionFile.c_str()) == false)
+	//{
+	//	g_Dump.Crash();
+	//}
 }
 
 DBServer::~DBServer()

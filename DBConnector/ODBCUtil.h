@@ -21,4 +21,10 @@ namespace ODBCUtil
 
 		return true;
 	}
+
+	bool DBSendQuery(const std::wstring& query, SQLHSTMT& stmtHandle);
+	bool DBSendQueryDirect(const std::wstring& query, SQLHSTMT& stmtHandle);
+	bool DBSendQueryWithPrepare(const std::wstring& query, SQLHSTMT& stmtHandle);
+
+	void GetDBResult(SQLHSTMT& stmtHandle);
 }

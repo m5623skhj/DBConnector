@@ -76,15 +76,21 @@ int main()
         cout << "InitDB() Success" << endl;
     } while (false);
 
-    if (connector.CallStoredProcedure("update_test", 1) == false)
+    auto conn = connector.GetConnection();
+    if (conn == std::nullopt)
+    {
+        return 0;
+    }
+
+    if (connector.CallStoredProcedureDirect("update_test", conn.value().stmtHandle, 1) == false)
     {
         return 0;
     }
 
     auto procedure = connector.GetProcedureInfo("test");
-    procedure->SettingSPMaker(connector.GetStmtHandle(), SP_PARAMETER_LOCATION, 1, 2, 33, "testString");
+    procedure->SettingSPMaker(conn.value().stmtHandle, SP_PARAMETER_LOCATION, 1, 2, 33, "testString");
 
-    if (connector.DBSendQuery(procedure->sql) == false)
+    if (ODBCUtil::DBSendQueryDirect(procedure->sql, conn.value().stmtHandle) == false)
     {
         return 0;
     }

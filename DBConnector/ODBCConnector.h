@@ -5,11 +5,43 @@
 #include <memory>
 #include "ODBCMetaData.h"
 #include "ODBCConst.h"
+#include <list>
+#include <mutex>
+#include <optional>
 
 struct ProcedureInfo;
 
-// TODO :
-// DBConnectionPool을 유지할 수 있도록 수정
+struct DBConnection
+{
+	SQLHDBC dbcHandle;
+	SQLHSTMT stmtHandle;
+};
+
+class DBConnectionPool
+{
+public:
+	DBConnectionPool() = default;
+	~DBConnectionPool();
+
+public:
+	bool Initialize(const std::wstring& inConnectionString, int inPoolSize);
+	void Cleanup();
+
+public:
+	std::optional<DBConnection> GetConnection();
+
+private:
+	bool Initialize();
+
+private:
+	std::list<DBConnection> connectionList;
+	std::mutex connectionLock;
+
+private:
+	int poolSize = 0;
+	std::wstring connectionString;
+};
+
 class ODBCConnector
 {
 private:
@@ -27,11 +59,9 @@ public:
 	void DisconnectDB();
 
 	bool InitDB();
-	bool DBSendQuery(const std::wstring& query);
-	bool DBSendQueryWithPrepare(const std::wstring& query);
 
 	template <typename... Args>
-	bool CallStoredProcedure(const ProcedureName& procedureName, Args... args)
+	bool CallStoredProcedure(const ProcedureName& procedureName, SQLHSTMT& stmtHandle, Args... args)
 	{
 		auto procedureInfo = GetProcedureInfo(procedureName);
 		if (procedureInfo == nullptr)
@@ -40,7 +70,25 @@ public:
 		}
 
 		procedureInfo->SettingSPMaker(stmtHandle, SP_PARAMETER_LOCATION, args...);
-		if (DBSendQuery(procedureInfo->sql) == false)
+		if (ODBCUtil::DBSendQuery(procedureInfo->sql, stmtHandle) == false)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	template <typename... Args>
+	bool CallStoredProcedureDirect(const ProcedureName& procedureName, SQLHSTMT& stmtHandle, Args... args)
+	{
+		auto procedureInfo = GetProcedureInfo(procedureName);
+		if (procedureInfo == nullptr)
+		{
+			return false;
+		}
+
+		procedureInfo->SettingSPMaker(stmtHandle, SP_PARAMETER_LOCATION, args...);
+		if (ODBCUtil::DBSendQueryDirect(procedureInfo->sql, stmtHandle) == false)
 		{
 			return false;
 		}
@@ -54,16 +102,16 @@ private:
 
 private:
 	bool OptionParsing(const std::wstring& optionFileName);
-	bool ConnectSQLDriver();
+	const std::wstring GetDBConnectionString();
 
 public:
-	SQLHSTMT GetStmtHandle();
-	SQLHDBC GetDBCHandle();
+	SQLHSTMT GetDefaultStmtHandle();
+	SQLHDBC GetDefaultDBCHandle();
+	std::optional<DBConnection> GetConnection();
 
 private:
-	SQLHENV enviromentHandle;
-	SQLHDBC dbcHandle;
-	SQLHSTMT stmtHandle;
+	DBConnectionPool connectionPool;
+	DBConnection defaultConnection;
 
 public:
 	const ProcedureInfo * const GetProcedureInfo(ProcedureName procedureName) const;
@@ -79,4 +127,6 @@ private:
 	WCHAR uid[16];
 	WCHAR password[16];
 	WCHAR schemaName[16];
+
+	int connectionPoolSize = 4;
 };

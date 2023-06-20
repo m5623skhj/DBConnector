@@ -83,7 +83,7 @@ ODBCMetaData::ODBCMetaData(const std::wstring& inCatalogName)
 
 bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* schemaName, OUT std::set<ProcedureName>& procedureNameList)
 {
-	auto stmtHandle = connector.GetStmtHandle();
+	auto stmtHandle = connector.GetDefaultStmtHandle();
 	if (stmtHandle == nullptr)
 	{
 		return false;
@@ -117,10 +117,10 @@ bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* schem
 
 bool ODBCMetaData::MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const std::set<ProcedureName>& procedureNameList)
 {
-	auto stmtHandle = connector.GetStmtHandle();
+	auto stmtHandle = connector.GetDefaultStmtHandle();
 	// auto commit mode off
 	// SQLExecute()를 모두 롤백하기 위해서 설정
-	auto ret = SQLSetConnectAttr(connector.GetDBCHandle(), SQL_ATTR_AUTOCOMMIT, SQL_AUTOCOMMIT_OFF, 0);
+	auto ret = SQLSetConnectAttr(connector.GetDefaultDBCHandle(), SQL_ATTR_AUTOCOMMIT, SQL_AUTOCOMMIT_OFF, 0);
 	if (ODBCUtil::SQLIsSuccess(ret) == false)
 	{
 		std::cout << "SQLSetConnectAttr failed : " << std::endl;
@@ -169,13 +169,13 @@ bool ODBCMetaData::MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const
 		}
 
 		// 실제로 호출된 sp가 적용되면 안되므로 롤백시킴
-		SQLEndTran(SQL_HANDLE_DBC, connector.GetDBCHandle(), SQL_ROLLBACK);
+		SQLEndTran(SQL_HANDLE_DBC, connector.GetDefaultDBCHandle(), SQL_ROLLBACK);
 		
 		procedureInfoMap.insert({ procedureName, procedureInfo });
 	}
 
 	// auto commit mode on
-	ret = SQLSetConnectAttr(connector.GetDBCHandle(), SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_ON, 0);
+	ret = SQLSetConnectAttr(connector.GetDefaultDBCHandle(), SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_ON, 0);
 	if (ODBCUtil::SQLIsSuccess(ret) == false)
 	{
 		std::cout << "SQLSetStmtAttr() failed" << std::endl;

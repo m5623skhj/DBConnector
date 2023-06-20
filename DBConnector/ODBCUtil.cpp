@@ -71,4 +71,53 @@ namespace ODBCUtil
 			return L"";
 		}
 	}
+
+	bool DBSendQuery(const std::wstring& query, SQLHSTMT& stmtHandle)
+	{
+		if (SQLExecute(stmtHandle) != SQL_SUCCESS)
+		{
+			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
+			return false;
+		}
+
+		return true;
+	}
+
+	bool DBSendQueryDirect(const std::wstring& query, SQLHSTMT& stmtHandle)
+	{
+		if (SQLExecDirect(stmtHandle, (SQLWCHAR*)query.c_str(), SQL_NTS) != SQL_SUCCESS)
+		{
+			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
+			return false;
+		}
+
+		return true;
+	}
+
+	bool DBSendQueryWithPrepare(const std::wstring& query, SQLHSTMT& stmtHandle)
+	{
+		if (SQLPrepare(stmtHandle, (SQLWCHAR*)query.c_str(), SQL_NTS) != SQL_SUCCESS)
+		{
+			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
+			return false;
+		}
+
+		if (SQLExecute(stmtHandle) != SQL_SUCCESS)
+		{
+			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
+			return false;
+		}
+
+		return true;
+	}
+
+	void GetDBResult(SQLHSTMT& stmtHandle)
+	{
+		while (SQLFetch(stmtHandle) == SQL_SUCCESS)
+		{
+
+		}
+
+		SQLCloseCursor(stmtHandle);
+	}
 }

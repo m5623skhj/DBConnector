@@ -14,6 +14,7 @@ struct TestReulstType
 	REGISTER_PROPERTY(id);
 	REGISTER_PROPERTY(no);
 
+public:
 	int id = 0;
 	int no = 0;
 

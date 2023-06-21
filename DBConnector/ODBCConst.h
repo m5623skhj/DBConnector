@@ -1,4 +1,5 @@
 #pragma once
+// https://www.ibm.com/docs/ko/i/7.3?topic=functions-sqlprocedurecolumns-get-inputoutput-parameter-information-procedure
 
 #define SP_PARAMETER_LOCATION 1
 

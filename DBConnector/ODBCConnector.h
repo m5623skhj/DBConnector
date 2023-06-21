@@ -96,6 +96,23 @@ public:
 		return true;
 	}
 
+	template <typename... Args>
+	bool CallStoredProcedureDirect(const ProcedureInfo* procedureInfo, SQLHSTMT& stmtHandle, Args... args)
+	{
+		if (procedureInfo == nullptr)
+		{
+			return false;
+		}
+
+		procedureInfo->SettingSPMaker(stmtHandle, SP_PARAMETER_LOCATION, args...);
+		if (ODBCUtil::DBSendQueryDirect(procedureInfo->sql, stmtHandle) == false)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 private:
 	bool MakeProcedureFromDB();
 	bool MakeProcedureMetaData();

@@ -87,15 +87,30 @@ int main()
         return 0;
     }
 
-    auto procedure = connector.GetProcedureInfo("test");
-    procedure->SettingSPMaker(conn.value().stmtHandle, SP_PARAMETER_LOCATION, 1, 2, 33, "testString");
-
-    if (ODBCUtil::DBSendQueryDirect(procedure->sql, conn.value().stmtHandle) == false)
+    if (ODBCUtil::DBSendQueryDirect(L"EXEC test 3, \"ttttttt\"", conn.value().stmtHandle) == false)
     {
         return 0;
     }
+
+    auto procedure = connector.GetProcedureInfo("test");
+    std::wstring testString = L"testString";
+    int input = 6;
+    if (connector.CallStoredProcedureDirect(procedure, conn.value().stmtHandle, input, L"myteset") == false)
+    {
+        return 0;
+    }
+
+    auto procedure2 = connector.GetProcedureInfo("string_test_proc");
+    std::wstring testString2 = L"ttttteeeee";
+    if (connector.CallStoredProcedureDirect(procedure2, conn.value().stmtHandle, testString2) == false)
+    {
+        return 0;
+    }
+
+    test::ResultType t;
+    ODBCUtil::GetDBResult(conn.value().stmtHandle, t);
     
-    DBServer dbServer(L"DBServerOptionFile.txt");
+    //DBServer dbServer(L"DBServerOptionFile.txt");
 
     connector.DisconnectDB();
 

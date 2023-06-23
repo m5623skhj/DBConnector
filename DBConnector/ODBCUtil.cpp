@@ -2,6 +2,7 @@
 
 #include <sql.h>
 #include <sqlext.h>
+#include "StoredProcedure.h"
 
 namespace ODBCUtil
 {
@@ -32,6 +33,7 @@ namespace ODBCUtil
 
 	bool IsSameType(const std::string& lhs, const std::string& rhs)
 	{
+		// string
 		if (lhs == "FString")
 		{
 			if (rhs == "varchar")
@@ -46,6 +48,40 @@ namespace ODBCUtil
 				return true;
 			}
 		}
+
+		// wstring
+		if (lhs == "FWString")
+		{
+			if (rhs == "nvarchar")
+			{
+				return true;
+			}
+		}
+		else if (rhs == "FWString")
+		{
+			if (lhs == "nvarchar")
+			{
+				return true;
+			}
+		}
+
+		// int64
+		if (lhs == "__int64")
+		{
+			if (rhs == "bigint")
+			{
+				return true;
+			}
+		}
+		else if (rhs == "bigint")
+		{
+			if (lhs == "__int64")
+			{
+				return true;
+			}
+		}
+
+		return false;
 
 		return false;
 	}
@@ -63,6 +99,8 @@ namespace ODBCUtil
 		case SQL_FLOAT:
 		case SQL_REAL:
 			return L"float";
+		case SQL_WVARCHAR:
+			return L"nvarchar";
 		case SQL_VARCHAR:
 			return L"string";
 		case SQL_BIT:
@@ -85,7 +123,7 @@ namespace ODBCUtil
 
 	bool DBSendQueryDirect(const std::wstring& query, SQLHSTMT& stmtHandle)
 	{
-		if (SQLExecDirect(stmtHandle, (SQLWCHAR*)query.c_str(), SQL_NTS) != SQL_SUCCESS)
+		if (ODBCUtil::SQLIsSuccess(SQLExecDirect(stmtHandle, (SQLWCHAR*)query.c_str(), SQL_NTS)) == false)
 		{
 			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
 			return false;
@@ -113,9 +151,22 @@ namespace ODBCUtil
 
 	void GetDBResult(SQLHSTMT& stmtHandle)
 	{
+		// 작성중...
 		while (SQLFetch(stmtHandle) == SQL_SUCCESS)
 		{
 
+		}
+
+		SQLCloseCursor(stmtHandle);
+	}
+
+	void GetDBResult(SQLHSTMT& stmtHandle, test::ResultType& t)
+	{
+		// 작성중...
+		while (SQLFetch(stmtHandle) == SQL_SUCCESS)
+		{
+			//SQLBindCol(stmtHandle, 1, SQL_C_LONG, &t.id, sizeof(int), NULL);
+			//SQLBindCol(stmtHandle, 2, SQL_C_LONG, &t.no, sizeof(int), NULL);
 		}
 
 		SQLCloseCursor(stmtHandle);

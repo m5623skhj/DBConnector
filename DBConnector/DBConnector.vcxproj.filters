@@ -42,9 +42,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="DBConnector.cpp">
-      <Filter>소스 파일\DBConnector</Filter>
-    </ClCompile>
     <ClCompile Include="ODBCConnector.cpp">
       <Filter>소스 파일\ODBC</Filter>
     </ClCompile>

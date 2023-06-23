@@ -22,7 +22,7 @@ TEST(DBConnectorTest, DBInitializeTest)
 TEST(DBConnectorTest, ProcedureParameterTest)
 {
 	std::map<std::string, std::shared_ptr<IStoredProcedure>> testProcedureMap;
-	std::map<std::string, std::vector<std::pair<ProcedureName, ProcedureTypeName>>> resultPropertyMap;
+	std::map<std::string, std::vector<std::pair<std::string, ProcedureTypeName>>> resultPropertyMap;
 
 	PROCEDURE_TEST_LIST(testProcedureMap, resultPropertyMap);
 
@@ -33,8 +33,8 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 
 	std::vector<ProcedureName> notMatchedProcedureList;
 	auto columnMatch = [](
-		const std::vector<std::pair<ProcedureName, ProcedureTypeName>>& cppProperties
-		, const std::vector<std::pair<ProcedureName, ProcedureTypeName>>& dbProperties) -> bool
+		const std::vector<std::pair<std::string, ProcedureTypeName>>& cppProperties
+		, const std::vector<std::pair<std::string, ProcedureTypeName>>& dbProperties) -> bool
 	{
 		if (cppProperties.size() != dbProperties.size())
 		{
@@ -60,7 +60,7 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 	{
 		ASSERT_NE(testProcedure.second, nullptr);
 	
-		std::vector<std::pair<ProcedureName, ProcedureTypeName>> cppProperties;
+		std::vector<std::pair<std::string, ProcedureTypeName>> cppProperties;
 		testProcedure.second->GetTypeInfo().GetAllProperties(cppProperties);
 
 		auto matchedProcedureInfo = connector.GetProcedureInfo(testProcedure.first);
@@ -68,7 +68,7 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 		auto matchedProcedureResultColumnInfo = resultPropertyMap.find(testProcedure.first);
 		ASSERT_NE(matchedProcedureResultColumnInfo, resultPropertyMap.end());
 
-		std::vector<std::pair<ProcedureName, ProcedureTypeName>> dbInputProperties;
+		std::vector<std::pair<std::string, ProcedureTypeName>> dbInputProperties;
 		char UTF8_name[256], UTF8_dataTypeName[256];
 		for (const auto& inputColmun : matchedProcedureInfo->inputColumnInfoList)
 		{
@@ -77,7 +77,7 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 			dbInputProperties.emplace_back(std::make_pair(UTF8_name, UTF8_dataTypeName));
 		}
 		
-		std::vector<std::pair<ProcedureName, ProcedureTypeName>> dbResultProperties;
+		std::vector<std::pair<std::string, ProcedureTypeName>> dbResultProperties;
 		for (const auto& resultColmun : matchedProcedureInfo->resultColumnInfoList)
 		{
 			UTF16ToUTF8(resultColmun.name.c_str(), UTF8_name);

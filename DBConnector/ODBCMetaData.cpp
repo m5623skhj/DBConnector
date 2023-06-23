@@ -8,9 +8,9 @@
 #include <cstring>
 
 ColumnInfo::ColumnInfo(SQLTCHAR* inName, SQLSMALLINT inType,
-	SQLSMALLINT inDataType, SQLTCHAR* inDataTypeName, SQLULEN inColumnSize)
+	SQLINTEGER inDataType, SQLTCHAR* inDataTypeName, SQLULEN inColumnSize)
 	: name(reinterpret_cast<WCHAR*>(inName))
-	, type(inType)
+	, columnType(inType)
 	, dataType(inDataType)
 	, dataTypeName(reinterpret_cast<WCHAR*>(inDataTypeName))
 	, columnSize(inColumnSize)
@@ -18,9 +18,9 @@ ColumnInfo::ColumnInfo(SQLTCHAR* inName, SQLSMALLINT inType,
 }
 
 ColumnInfo::ColumnInfo(SQLTCHAR* inName, SQLSMALLINT inType,
-	SQLSMALLINT inDataType, std::wstring inDataTypeName, SQLULEN inColumnSize)
+	SQLINTEGER inDataType, std::wstring inDataTypeName, SQLULEN inColumnSize)
 	: name(reinterpret_cast<WCHAR*>(inName))
-	, type(inType)
+	, columnType(inType)
 	, dataType(inDataType)
 	, dataTypeName(inDataTypeName)
 	, columnSize(inColumnSize)
@@ -38,7 +38,7 @@ bool ProcedureInfo::SettingDefaultSPMaker(SQLHSTMT stmtHandle)
 			return false;
 		}
 
-		if (ODBCUtil::SQLIsSuccess(SQLBindParameter(stmtHandle, cnt, SQL_PARAM_INPUT, SQL_C_SLONG, inputColumn.dataType, 0, 0, (SQLPOINTER)(defaultColumn.get()), 0, NULL)) == false)
+		if (ODBCUtil::SQLIsSuccess(SQLBindParameter(stmtHandle, cnt, SQL_PARAM_INPUT, SQL_C_LONG, inputColumn.dataType, 0, 0, (SQLPOINTER)(defaultColumn.get()), 0, NULL)) == false)
 		{
 			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
 			return false;
@@ -64,9 +64,13 @@ std::shared_ptr<void> ProcedureInfo::GetDefaultValue(short dataType)
 	{
 		return std::make_shared<float>(0.f);
 	}
+	else if (dataType == SQL_WVARCHAR)
+	{
+		return std::make_shared<const WCHAR*>(L" ");
+	}
 	else if (dataType == SQL_VARCHAR)
 	{
-		return std::make_shared<WCHAR>(L' ');
+		return std::make_shared<const char*>(" ");
 	}
 	else if (dataType == SQL_BIT)
 	{
@@ -81,7 +85,7 @@ ODBCMetaData::ODBCMetaData(const std::wstring& inCatalogName)
 {
 }
 
-bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* schemaName, OUT std::set<ProcedureName>& procedureNameList)
+bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* catalogName, WCHAR* schemaName, OUT std::set<ProcedureName>& procedureNameList)
 {
 	auto stmtHandle = connector.GetDefaultStmtHandle();
 	if (stmtHandle == nullptr)
@@ -89,8 +93,7 @@ bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* schem
 		return false;
 	}
 
-	SQLWCHAR* catalog_name = (SQLWCHAR*)L"SQL_ALL_CATALOGS";
-	if (SQLProcedures(stmtHandle, (SQLWCHAR*)catalog_name, static_cast<SQLSMALLINT>(wcslen(catalog_name)), schemaName, wcslen(schemaName), NULL, NULL) != SQL_SUCCESS)
+	if (SQLProcedures(stmtHandle, (SQLWCHAR*)catalogName, static_cast<SQLSMALLINT>(wcslen(catalogName)), schemaName, wcslen(schemaName), NULL, NULL) != SQL_SUCCESS)
 	{
 		return false;
 	}
@@ -107,7 +110,11 @@ bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* schem
 			return false;
 		}
 
-		procedureNameList.insert(reinterpret_cast<const char*>(procedureName));
+		std::string procInfo = (const char*)procedureName;
+		auto pos = procInfo.find(';');
+		std::string procName = procInfo.substr(0, pos);
+
+		procedureNameList.insert(procName.c_str());
 	}
 
 	SQLCloseCursor(stmtHandle);
@@ -197,8 +204,8 @@ bool ODBCMetaData::MakeInputColumnToProcedureInfo(SQLHSTMT stmtHandle, const Pro
 	struct InputColumnInfo
 	{
 		SQLTCHAR name[64];
-		SQLSMALLINT type = 0;
-		SQLSMALLINT dataType = 0;
+		SQLSMALLINT columnType = 0;
+		SQLINTEGER dataType = 0;
 		SQLTCHAR dataTypeName[64];
 		SQLULEN columnSize = 0;
 
@@ -208,11 +215,11 @@ bool ODBCMetaData::MakeInputColumnToProcedureInfo(SQLHSTMT stmtHandle, const Pro
 			{
 				return false;
 			}
-			if (SQLBindCol(stmtHandle, COLUMN_NUMBER::COLUMN_TYPE, SQL_C_SHORT, &type, sizeof(type), nullptr) != SQL_SUCCESS)
+			if (SQLBindCol(stmtHandle, COLUMN_NUMBER::COLUMN_TYPE, SQL_C_SHORT, &columnType, sizeof(columnType), nullptr) != SQL_SUCCESS)
 			{
 				return false;
 			}
-			if (SQLBindCol(stmtHandle, COLUMN_NUMBER::DATA_TYPE, SQL_C_SHORT, &dataType, sizeof(dataType), nullptr) != SQL_SUCCESS)
+			if (SQLBindCol(stmtHandle, COLUMN_NUMBER::DATA_TYPE, SQL_INTEGER, &dataType, sizeof(dataType), nullptr) != SQL_SUCCESS)
 			{
 				return false;
 			}
@@ -245,22 +252,23 @@ bool ODBCMetaData::MakeInputColumnToProcedureInfo(SQLHSTMT stmtHandle, const Pro
 	{
 		if (ODBCUtil::SQLIsSuccess(SQLFetch(stmtHandle)) == false)
 		{
+			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
 			break;
 		}
 		
-		if (isFirstParam)
+		if (columnInfo.columnType == SQL_PARAM_INPUT)
 		{
-			isFirstParam = false;
-		}
-		else
-		{
-			outProcdureInfo->sql += L", ";
-		}
+			if (isFirstParam)
+			{
+				isFirstParam = false;
+			}
+			else
+			{
+				outProcdureInfo->sql += L", ";
+			}
 
-		if (columnInfo.type == SQL_PARAM_INPUT)
-		{
 			outProcdureInfo->inputColumnInfoList.emplace_back(ColumnInfo(
-				columnInfo.name, columnInfo.type, columnInfo.dataType, columnInfo.dataTypeName, columnInfo.columnSize));
+				columnInfo.name, columnInfo.columnType, columnInfo.dataType, columnInfo.dataTypeName, columnInfo.columnSize));
 
 			outProcdureInfo->sql += L"?";
 		}

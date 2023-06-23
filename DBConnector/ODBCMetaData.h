@@ -13,13 +13,13 @@ struct ColumnInfo
 {
 	ColumnInfo() = default;
 	ColumnInfo(SQLTCHAR* inName, SQLSMALLINT inType,
-		SQLSMALLINT inDataType, SQLTCHAR* inDataTypeName, SQLULEN inColumnSize);
+		SQLINTEGER inDataType, SQLTCHAR* inDataTypeName, SQLULEN inColumnSize);
 	ColumnInfo(SQLTCHAR* inName, SQLSMALLINT inType,
-		SQLSMALLINT inDataType, std::wstring inDataTypeName, SQLULEN inColumnSize);
+		SQLINTEGER inDataType, std::wstring inDataTypeName, SQLULEN inColumnSize);
 
 	std::wstring name;
-	short type = 0;
-	short dataType = 0;
+	short columnType = 0;
+	int dataType = 0;
 	std::wstring dataTypeName;
 	UINT64 columnSize = 0;
 };
@@ -50,7 +50,8 @@ struct ProcedureInfo
 			return false;
 		}
 
-		return ODBCUtil::SettingSPMaker(stmtHandle, parameterLocation, inputColumnInfoList[index].dataType, input);
+		return ODBCUtil::SettingSPMaker(stmtHandle, parameterLocation
+			, inputColumnInfoList[index].dataType, inputColumnInfoList[index].columnType, input);
 	}
 
 	template <typename T, typename... Args>
@@ -79,7 +80,7 @@ public:
 	ODBCMetaData& operator=(const ODBCMetaData&) = delete;
 
 public:
-	bool GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* schemaName, OUT std::set<ProcedureName>& procedureNameList);
+	bool GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* catalogName, WCHAR* schemaName, OUT std::set<ProcedureName>& procedureNameList);
 	bool MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const std::set<ProcedureName>& procedureNameList);
 
 private:

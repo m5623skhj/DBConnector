@@ -161,9 +161,6 @@
     <ClCompile Include="..\..\..\..\Desktop\Common\Parse.cpp" />
     <ClCompile Include="..\..\..\..\Desktop\Common\PreCompile.cpp" />
     <ClCompile Include="..\..\..\..\Desktop\Common\Ringbuffer.cpp" />
-    <ClCompile Include="DBConnector.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="DBConnectorTest.cpp" />
     <ClCompile Include="DBServer.cpp" />
     <ClCompile Include="main.cpp" />

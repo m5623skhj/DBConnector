@@ -19,21 +19,17 @@ class test : public IStoredProcedure
 {
 	DEFINE_CLASS_INFO(test);
 
-	REGISTER_PROPERTY(_id);
-	REGISTER_PROPERTY(_id2);
-	REGISTER_PROPERTY(_id3);
-	REGISTER_PROPERTY(test);
+	REGISTER_PROPERTY(id3);
+	REGISTER_PROPERTY(teststring);
 
 public:
 	virtual ~test() {}
 
 public:
-	int _id = 0;
-	int _id2 = 0;
-	int _id3 = 0;
-	FString test;
+	int id3 = 0;
+	FWString teststring;
 
-	using ResultType = TestReulstType;
+	using ResultType = DB_IgnoreType;
 };
 
 class update_test : public IStoredProcedure
@@ -46,7 +42,33 @@ public:
 	virtual ~update_test() {}
 
 public:
-	int _id = 0;
+	long long _id = 0;
+
+	using ResultType = DB_IgnoreType;
+};
+
+class string_test_proc : public IStoredProcedure
+{
+	DEFINE_CLASS_INFO(string_test_proc);
+
+	REGISTER_PROPERTY(test);
+
+public:
+	FWString test;
+
+	using ResultType = DB_IgnoreType;
+};
+
+class input_test : public IStoredProcedure
+{
+	DEFINE_CLASS_INFO(input_test);
+
+	REGISTER_PROPERTY(item);
+	REGISTER_PROPERTY(item2);
+
+public:
+	int item;
+	int item2;
 
 	using ResultType = DB_IgnoreType;
 };
@@ -68,5 +90,6 @@ public:
 	#define PROCEDURE_TEST_LIST(TestProcedureMap, ResultPropertyMap){\
 		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, test)\
 		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, update_test)\
+		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, string_test_proc)\
 	}
 #endif

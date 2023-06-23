@@ -85,7 +85,7 @@ bool DBConnectionPool::Initialize()
 		}
 
 		sqlReturn = SQLDriverConnect(conn.dbcHandle, NULL, (SQLWCHAR*)connectionString.c_str(), SQL_NTS, NULL, 0, NULL, SQL_DRIVER_COMPLETE);
-		if (sqlReturn != SQL_SUCCESS)
+		if (ODBCUtil::SQLIsSuccess(sqlReturn) == false)
 		{
 			std::cout << "ConnectSQLDriver() falied" << std::endl;
 			return false;
@@ -156,7 +156,7 @@ bool ODBCConnector::ConnectDB(const std::wstring& optionFileName)
 	}
 
 	sqlReturn = SQLDriverConnect(conn.dbcHandle, NULL, (SQLWCHAR*)GetDBConnectionString().c_str(), SQL_NTS, NULL, 0, NULL, SQL_DRIVER_COMPLETE);
-	if (sqlReturn != SQL_SUCCESS)
+	if (ODBCUtil::SQLIsSuccess(sqlReturn) == false)
 	{
 		std::cout << "ConnectSQLDriver() falied" << std::endl;
 		return false;
@@ -211,7 +211,7 @@ bool ODBCConnector::MakeProcedureFromDB()
 		return false;
 	}
 
-	if (metaData->GetProcedureNameFromDB(*this, schemaName, procedureNameList) == false)
+	if (metaData->GetProcedureNameFromDB(*this, catalogName, schemaName, procedureNameList) == false)
 	{
 		return false;
 	}
@@ -255,6 +255,14 @@ bool ODBCConnector::OptionParsing(const std::wstring& optionFileName)
 		return false;
 	if (g_Paser.GetValue_String(buffer, L"ODBC", L"PWD", password) == false)
 		return false;
+	if (g_Paser.GetValue_String(buffer, L"ODBC", L"Schema", schemaName) == false)
+		return false;
+	if (g_Paser.GetValue_String(buffer, L"ODBC", L"CATALOG_NAME", catalogName) == false)
+		return false;
+	if (g_Paser.GetValue_String(buffer, L"ODBC", L"DRIVER", driver) == false)
+		return false;
+	if (g_Paser.GetValue_Short(buffer, L"ODBC", L"PORT", &port) == false)
+		return false;
 	if (g_Paser.GetValue_Int(buffer, L"CONNECTION_POOL", L"SIZE", &connectionPoolSize) == false)
 		return false;
 
@@ -264,8 +272,12 @@ bool ODBCConnector::OptionParsing(const std::wstring& optionFileName)
 const std::wstring ODBCConnector::GetDBConnectionString()
 {
 	std::wstring connectString;
-	connectString += L"DSN=";
+	connectString += L"DRIVER=";
+	connectString += driver;
+	connectString += L";SERVER=";
 	connectString += dsn;
+	connectString += L";DATABASE=";
+	connectString += catalogName;
 	connectString += L";UID=";
 	connectString += uid;
 	connectString += L";PWD=";

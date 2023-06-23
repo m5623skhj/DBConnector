@@ -143,7 +143,10 @@ private:
 	WCHAR dsn[16];
 	WCHAR uid[16];
 	WCHAR password[16];
+	WCHAR catalogName[16];
 	WCHAR schemaName[16];
+	WCHAR driver[64];
+	short port;
 
 	int connectionPoolSize = 4;
 };

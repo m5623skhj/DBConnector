@@ -123,7 +123,7 @@ public:
 	}
 
 	void AddProperty(const Property& inProperty);
-	void GetAllProperties(OUT std::vector<std::pair<ProcedureName, ProcedureTypeName>>& propertyList) const;
+	void GetAllProperties(OUT std::vector<std::pair<PropertyName, PropertyTypeName>>& propertyList) const;
 
 private:
 	using PropertyMap = std::map<PropertyName, const Property>;

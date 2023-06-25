@@ -16,7 +16,7 @@ void TypeInfo::AddProperty(const Property& inProperty)
 	propertyMap.emplace(propertyName, inProperty);
 }
 
-void TypeInfo::GetAllProperties(OUT std::vector<std::pair<ProcedureName, ProcedureTypeName>>& propertyList) const
+void TypeInfo::GetAllProperties(OUT std::vector<std::pair<PropertyName, PropertyTypeName>>& propertyList) const
 {
 	for (const auto& it : propertyMap)
 	{

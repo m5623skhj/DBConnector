@@ -51,6 +51,11 @@ public:
         thisString.assign(inString);
     }
 
+    void operator=(const WCHAR* inString)
+    {
+        thisString.assign(inString);
+    }
+
     void operator=(std::wstring inString)
     {
         thisString.assign(inString);

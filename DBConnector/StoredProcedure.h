@@ -7,12 +7,20 @@
 #include "Type.h"
 #include "ProcedureType.h"
 
+#define INPUT_REAL_POINTER(InputValue)\
+{\
+	realPointerList.emplace_back(&InputValue);\
+}
+
 class IStoredProcedure
 {
-	DEFINE_CLASS_INFO(IStoredProcedure)
+	DEFINE_CLASS_INFO(IStoredProcedure);
 
 public:
 	virtual ~IStoredProcedure() {}
+
+public:
+	std::vector<void*> realPointerList;
 };
 
 class test : public IStoredProcedure
@@ -23,6 +31,11 @@ class test : public IStoredProcedure
 	REGISTER_PROPERTY(teststring);
 
 public:
+	test()
+	{
+		INPUT_REAL_POINTER(id3);
+		INPUT_REAL_POINTER(teststring);
+	}
 	virtual ~test() {}
 
 public:
@@ -39,6 +52,10 @@ class update_test : public IStoredProcedure
 	REGISTER_PROPERTY(_id);
 
 public:
+	update_test()
+	{
+		INPUT_REAL_POINTER(_id);
+	}
 	virtual ~update_test() {}
 
 public:
@@ -54,6 +71,13 @@ class string_test_proc : public IStoredProcedure
 	REGISTER_PROPERTY(test);
 
 public:
+	string_test_proc()
+	{
+		INPUT_REAL_POINTER(test);
+	}
+	virtual ~string_test_proc() {}
+
+public:
 	FWString test;
 
 	using ResultType = DB_IgnoreType;
@@ -67,11 +91,31 @@ class input_test : public IStoredProcedure
 	REGISTER_PROPERTY(item2);
 
 public:
+	input_test()
+	{
+		INPUT_REAL_POINTER(item);
+		INPUT_REAL_POINTER(item2);
+	}
+	virtual ~input_test() {}
+
+public:
 	int item;
 	int item2;
 
 	using ResultType = DB_IgnoreType;
 };
+
+//class SELECT_TEST : public IStoredProcedure
+//{
+//	DEFINE_CLASS_INFO(SELECT_TEST);
+//
+//	REGISTER_PROPERTY(id);
+//
+//public:
+//	long long id = 0;
+//
+//	using ResultType = FWString;
+//};
 
 #if UNIT_TEST
 	#define INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, Procedure)\
@@ -93,3 +137,5 @@ public:
 		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, string_test_proc)\
 	}
 #endif
+
+//INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SELECT_TEST)\

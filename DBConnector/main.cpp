@@ -82,23 +82,12 @@ int main()
         return 0;
     }
 
-    if (connector.CallStoredProcedureDirect("update_test", conn.value().stmtHandle, 1) == false)
-    {
-        return 0;
-    }
-
-    if (ODBCUtil::DBSendQueryDirect(L"EXEC test 3, \"ttttttt\"", conn.value().stmtHandle) == false)
-    {
-        return 0;
-    }
-
     auto procedure = connector.GetProcedureInfo("test");
-    std::wstring testString = L"testString";
-    int input = 6;
-    if (connector.CallStoredProcedureDirect(procedure, conn.value().stmtHandle, input, L"myteset") == false)
-    {
-        return 0;
-    }
+    test testProcedure;
+    testProcedure.id3 = 100;
+    testProcedure.teststring = L"ohShit";
+
+    connector.CallStoreProcedureDirect(procedure, testProcedure, conn.value().stmtHandle);
 
     auto procedure2 = connector.GetProcedureInfo("string_test_proc");
     std::wstring testString2 = L"ttttteeeee";
@@ -107,9 +96,6 @@ int main()
         return 0;
     }
 
-    test::ResultType t;
-    ODBCUtil::GetDBResult(conn.value().stmtHandle, t);
-    
     //DBServer dbServer(L"DBServerOptionFile.txt");
 
     connector.DisconnectDB();

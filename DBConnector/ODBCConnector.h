@@ -66,6 +66,7 @@ public:
 		auto procedureInfo = GetProcedureInfo(procedureName);
 		if (procedureInfo == nullptr)
 		{
+			cout << "ProcedureInfo is nullptr" << std::endl;
 			return false;
 		}
 
@@ -84,6 +85,7 @@ public:
 		auto procedureInfo = GetProcedureInfo(procedureName);
 		if (procedureInfo == nullptr)
 		{
+			cout << "ProcedureInfo is nullptr" << std::endl;
 			return false;
 		}
 
@@ -101,10 +103,54 @@ public:
 	{
 		if (procedureInfo == nullptr)
 		{
+			cout << "ProcedureInfo is nullptr" << std::endl;
 			return false;
 		}
 
 		procedureInfo->SettingSPMaker(stmtHandle, SP_PARAMETER_LOCATION, args...);
+		if (ODBCUtil::DBSendQueryDirect(procedureInfo->sql, stmtHandle) == false)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	template<typename Procedure>
+	bool CallStoreProcedureDirect(const ProcedureInfo* procedureInfo, const Procedure& procedure, SQLHSTMT& stmtHandle)
+	{
+		static_assert(std::is_base_of<IStoredProcedure, Procedure>::value, "Only use derived classes from IStoredProcedure");
+
+		if (procedureInfo == nullptr)
+		{
+			cout << "ProcedureInfo is nullptr" << std::endl;
+			return false;
+		}
+
+		std::vector<std::pair<PropertyName, PropertyTypeName>> propertyList;
+		procedure.StaticTypeInfo().GetAllProperties(propertyList);
+		int paramLocation = 1;
+
+		for(const auto& thisProperty : propertyList)
+		{
+			int pointerPos = paramLocation - 1;
+
+			SQLPOINTER inputPointer = ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst()
+				.GetPointerFromPointerTypeString(thisProperty.second, procedure.realPointerList[pointerPos]);
+
+			if (ODBCUtil::SQLIsSuccess(ODBCUtil::SQLIsSuccess(SQLBindParameter(
+				stmtHandle, paramLocation, SQL_PARAM_INPUT,
+				ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst().GetCType(thisProperty.second),
+				ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst().GetSQLType(thisProperty.second)
+				, 0, 0, inputPointer, 0, NULL))) == false)
+			{
+				ODBCUtil::PrintSQLErrorMessage(stmtHandle);
+				return false;
+			}
+
+			++paramLocation;
+		}
+
 		if (ODBCUtil::DBSendQueryDirect(procedureInfo->sql, stmtHandle) == false)
 		{
 			return false;

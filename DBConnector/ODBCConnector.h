@@ -61,7 +61,7 @@ public:
 	bool InitDB();
 
 	template <typename... Args>
-	bool CallStoredProcedure(const ProcedureName& procedureName, SQLHSTMT& stmtHandle, Args... args)
+	bool CallStoredProcedure(const ProcedureName& procedureName, SQLHSTMT& stmtHandle, Args&... args)
 	{
 		auto procedureInfo = GetProcedureInfo(procedureName);
 		if (procedureInfo == nullptr)
@@ -79,7 +79,7 @@ public:
 	}
 
 	template <typename... Args>
-	bool CallStoredProcedureDirect(const ProcedureName& procedureName, SQLHSTMT& stmtHandle, Args... args)
+	bool CallStoredProcedureDirect(const ProcedureName& procedureName, SQLHSTMT& stmtHandle, Args&... args)
 	{
 		auto procedureInfo = GetProcedureInfo(procedureName);
 		if (procedureInfo == nullptr)
@@ -97,7 +97,7 @@ public:
 	}
 
 	template <typename... Args>
-	bool CallStoredProcedureDirect(const ProcedureInfo* procedureInfo, SQLHSTMT& stmtHandle, Args... args)
+	bool CallStoredProcedureDirect(const ProcedureInfo* procedureInfo, SQLHSTMT& stmtHandle, Args&... args)
 	{
 		if (procedureInfo == nullptr)
 		{

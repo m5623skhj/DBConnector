@@ -55,7 +55,7 @@ struct ProcedureInfo
 	}
 
 	template <typename T, typename... Args>
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const T& input, Args... args) const
+	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const T& input, Args&... args) const
 	{
 		if (SettingSPMaker(stmtHandle, parameterLocation, input) == false)
 		{

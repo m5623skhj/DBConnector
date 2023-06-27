@@ -66,7 +66,7 @@ public:
 		auto procedureInfo = GetProcedureInfo(procedureName);
 		if (procedureInfo == nullptr)
 		{
-			cout << "ProcedureInfo is nullptr" << std::endl;
+			std::cout << "ProcedureInfo is nullptr" << std::endl;
 			return false;
 		}
 
@@ -80,12 +80,12 @@ public:
 	}
 
 	template <typename... Args>
-	bool CallStoredProcedureDirect(const ProcedureName& procedureName, SQLHSTMT& stmtHandle, Args&... args)
+	bool CallStoredProcedureDirect(SQLHSTMT& stmtHandle, const ProcedureName& procedureName,Args&... args)
 	{
 		auto procedureInfo = GetProcedureInfo(procedureName);
 		if (procedureInfo == nullptr)
 		{
-			cout << "ProcedureInfo is nullptr" << std::endl;
+			std::cout << "ProcedureInfo is nullptr" << std::endl;
 			return false;
 		}
 
@@ -99,11 +99,11 @@ public:
 	}
 
 	template <typename... Args>
-	bool CallStoredProcedureDirect(const ProcedureInfo* procedureInfo, SQLHSTMT& stmtHandle, Args&... args)
+	bool CallStoredProcedureDirect(SQLHSTMT& stmtHandle, const ProcedureInfo* procedureInfo, Args&... args)
 	{
 		if (procedureInfo == nullptr)
 		{
-			cout << "ProcedureInfo is nullptr" << std::endl;
+			std::cout << "ProcedureInfo is nullptr" << std::endl;
 			return false;
 		}
 
@@ -117,13 +117,13 @@ public:
 	}
 
 	template<typename Procedure>
-	bool CallStoreProcedureDirect(const ProcedureInfo* procedureInfo, const Procedure& procedure, SQLHSTMT& stmtHandle)
+	bool CallStoredProcedureDirect(SQLHSTMT& stmtHandle, const ProcedureInfo* procedureInfo, const Procedure& procedure)
 	{
 		static_assert(std::is_base_of<IStoredProcedure, Procedure>::value, "Only use derived classes from IStoredProcedure");
 
 		if (procedureInfo == nullptr)
 		{
-			cout << "ProcedureInfo is nullptr" << std::endl;
+			std::cout << "ProcedureInfo is nullptr" << std::endl;
 			return false;
 		}
 

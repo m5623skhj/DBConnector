@@ -124,6 +124,9 @@ public:
 
 	void AddProperty(const Property& inProperty);
 	void GetAllProperties(OUT std::vector<std::pair<PropertyName, PropertyTypeName>>& propertyList) const;
+	std::vector<PropertyTypeName> GetAllPropertyTypeName() const;
+
+	size_t GetNumOfProperty();
 
 private:
 	using PropertyMap = std::map<PropertyName, const Property>;
@@ -134,4 +137,5 @@ private:
 	const TypeInfo* super = nullptr;
 
 	PropertyMap propertyMap;
+	std::vector<PropertyTypeName> propertyTypeNameList;
 };

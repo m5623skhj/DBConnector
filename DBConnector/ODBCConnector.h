@@ -60,6 +60,7 @@ public:
 
 	bool InitDB();
 
+#pragma region call stored procedure
 	template <typename... Args>
 	bool CallStoredProcedure(const ProcedureName& procedureName, SQLHSTMT& stmtHandle, Args&... args)
 	{
@@ -80,7 +81,7 @@ public:
 	}
 
 	template <typename... Args>
-	bool CallStoredProcedureDirect(SQLHSTMT& stmtHandle, const ProcedureName& procedureName,Args&... args)
+	bool CallSPDirect(SQLHSTMT& stmtHandle, const ProcedureName& procedureName, Args&... args)
 	{
 		auto procedureInfo = GetProcedureInfo(procedureName);
 		if (procedureInfo == nullptr)
@@ -99,7 +100,7 @@ public:
 	}
 
 	template <typename... Args>
-	bool CallStoredProcedureDirect(SQLHSTMT& stmtHandle, const ProcedureInfo* procedureInfo, Args&... args)
+	bool CallSPDirect(SQLHSTMT& stmtHandle, const ProcedureInfo* procedureInfo, Args&... args)
 	{
 		if (procedureInfo == nullptr)
 		{
@@ -117,7 +118,7 @@ public:
 	}
 
 	template<typename Procedure>
-	bool CallStoredProcedureDirect(SQLHSTMT& stmtHandle, const ProcedureInfo* procedureInfo, const Procedure& procedure)
+	bool CallSPDirectWithSPObject(SQLHSTMT& stmtHandle, const ProcedureInfo* procedureInfo, const Procedure& procedure)
 	{
 		static_assert(std::is_base_of<IStoredProcedure, Procedure>::value, "Only use derived classes from IStoredProcedure");
 
@@ -131,7 +132,7 @@ public:
 		procedure.StaticTypeInfo().GetAllProperties(propertyList);
 		int paramLocation = 1;
 
-		for(const auto& thisProperty : propertyList)
+		for (const auto& thisProperty : propertyList)
 		{
 			int pointerPos = paramLocation - 1;
 
@@ -158,6 +159,45 @@ public:
 
 		return true;
 	}
+#pragma endregion call stored procedure
+
+#pragma region get stored procedure result
+	template<typename QueryResult>
+	std::optional<std::vector<QueryResult>> GetDBResult(SQLHSTMT& stmtHandle)
+	{
+		static_assert(std::is_base_of<IResultType, QueryResult>::value, "Only use derived classes from IStoredProcedure");
+
+		auto propertyList = QueryResult::StaticTypeInfo().GetAllPropertyTypeName();
+
+		std::vector<QueryResult> resultList;
+		int columnIndex = 1;
+
+		while (SQLFetch(stmtHandle) == SQL_SUCCESS)
+		{
+			QueryResult queryResult;
+			for (auto& resultColumn : queryResult.realPointerList)
+			{
+				if (SQLGetData(stmtHandle, columnIndex
+					, ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst().GetCType(propertyList[columnIndex - 1])
+					, ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst().GetPointerFromPointerTypeString(propertyList[columnIndex - 1], resultColumn)
+					, ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst().GetBufferSize(propertyList[columnIndex - 1])
+					, nullptr) != SQL_SUCCESS)
+				{
+					ODBCUtil::PrintSQLErrorMessage(stmtHandle);
+					return std::nullopt;
+				}
+
+				++columnIndex;
+			}
+		
+			columnIndex = 1;
+			resultList.emplace_back(queryResult);
+		}
+		
+		SQLCloseCursor(stmtHandle);
+		return resultList;
+	}
+#pragma endregion get stored procedure result
 
 private:
 	bool MakeProcedureFromDB();

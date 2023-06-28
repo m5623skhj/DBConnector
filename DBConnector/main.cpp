@@ -50,7 +50,9 @@ int main()
 #if UNIT_TEST
     if (GTestHelper::StartTest() == false)
     {
+        cout << "---------------------" << endl;
         cout << "GTest failed" << std::endl;
+        cout << "---------------------" << endl << endl << endl;
         return 0;
     }
     cout << "---------------------" << endl;
@@ -63,17 +65,23 @@ int main()
     {
         if (connector.ConnectDB(L"OptionFile/DBConnectFile.txt") == false)
         {
+            cout << "---------------------" << endl;
             cout << "ConnectDB() failed" << endl;
+            cout << "---------------------" << endl << endl << endl;
             break;
         }
 
         if (connector.InitDB() == false)
         {
+            cout << "---------------------" << endl;
             cout << "InitDB() failed" << endl;
+            cout << "---------------------" << endl << endl << endl;
             break;
         }
 
+        cout << "---------------------" << endl;
         cout << "InitDB() Success" << endl;
+        cout << "---------------------" << endl << endl << endl;
     } while (false);
 
     auto conn = connector.GetConnection();
@@ -86,12 +94,38 @@ int main()
     test testProcedure;
     testProcedure.id3 = 100;
     testProcedure.teststring = L"ohShit";
-
-    connector.CallStoreProcedureDirect(procedure, testProcedure, conn.value().stmtHandle);
+    connector.CallSPDirectWithSPObject(conn.value().stmtHandle, procedure, testProcedure);
 
     auto procedure2 = connector.GetProcedureInfo("string_test_proc");
     std::wstring testString2 = L"ttttteeeee";
-    if (connector.CallStoredProcedureDirect(procedure2, conn.value().stmtHandle, testString2) == false)
+    if (connector.CallSPDirect(conn.value().stmtHandle, procedure2, testString2) == false)
+    {
+        return 0;
+    }
+
+    auto selectTest2 = connector.GetProcedureInfo("SELECT_TEST_2");
+    SELECT_TEST_2 selectProcedure2;
+    selectProcedure2.id = 3;
+    if (connector.CallSPDirectWithSPObject(conn.value().stmtHandle, selectTest2, selectProcedure2) == false)
+    {
+        return 0;
+    }
+
+    auto selectResult = connector.GetDBResult<SELECT_TEST_2::ResultType>(conn.value().stmtHandle);
+    if (selectResult == std::nullopt)
+    {
+        return 0;
+    }
+    
+    auto selectTest3 = connector.GetProcedureInfo("SELECT_TEST_3");
+    SELECT_TEST_3 selectProcedure3;
+    if (connector.CallSPDirectWithSPObject(conn.value().stmtHandle, selectTest3, selectProcedure3) == false)
+    {
+        return 0;
+    }
+
+    auto selectResult2 = connector.GetDBResult<SELECT_TEST_3::ResultType>(conn.value().stmtHandle);
+    if (selectResult2 == std::nullopt)
     {
         return 0;
     }

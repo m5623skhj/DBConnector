@@ -2,6 +2,7 @@
 #include <sqlext.h>
 #include "StoredProcedure.h"
 #include <string>
+#include "ODBCConst.h"
 
 namespace ODBCUtil
 {
@@ -10,6 +11,8 @@ namespace ODBCUtil
 		template<typename T, typename Enable = void>
 		struct ODBCTypeTraitor
 		{
+			static SQLSMALLINT GetCType() { return 0; }
+			static SQLSMALLINT GetSQLType() { return 0; }
 		};
 
 		template<>
@@ -82,6 +85,13 @@ namespace ODBCUtil
 			static SQLSMALLINT GetSQLType() { return SQL_WVARCHAR; }
 		};
 
+		template<>
+		struct ODBCTypeTraitor<FString>
+		{
+			static SQLSMALLINT GetCType() { return SQL_CHAR; }
+			static SQLSMALLINT GetSQLType() { return SQL_VARCHAR; }
+		};
+
 		template<typename T>
 		SQLSMALLINT GetCType(const T&)
 		{
@@ -95,6 +105,12 @@ namespace ODBCUtil
 		}
 
 		template<typename T>
+		SQLLEN GetBufferSize(const T&)
+		{
+			return GetBufferSize<T>::GetBufferSize();
+		}
+
+		template<typename T>
 		SQLPOINTER GetPointerFromT(const T& input)
 		{
 			if constexpr (std::is_pointer_v<T>)
@@ -102,6 +118,10 @@ namespace ODBCUtil
 				return (SQLPOINTER)input;
 			}
 			else if constexpr (std::is_same_v<T, std::wstring> || std::is_same_v<T, FWString>)
+			{
+				return (SQLPOINTER)input.c_str();
+			}
+			else if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, FString>)
 			{
 				return (SQLPOINTER)input.c_str();
 			}
@@ -116,7 +136,11 @@ namespace ODBCUtil
 		{
 			if constexpr (std::is_same_v<T, std::wstring> || std::is_same_v<T, FWString>)
 			{
-				return 0;
+				return SQL_STRING_LENGTH;
+			}
+			else if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, FString>)
+			{
+				return SQL_STRING_LENGTH;
 			}
 
 			return (SQLULEN)sizeof(T);
@@ -139,6 +163,7 @@ namespace ODBCUtil
 				cTypeMap.insert({ "WCHAR[]", SQL_WCHAR });
 				cTypeMap.insert({ "const WCHAR*", SQL_WCHAR });
 				cTypeMap.insert({ "FWString", SQL_WCHAR });
+				cTypeMap.insert({ "FString", SQL_CHAR });
 
 				// sqlTypeMap
 				sqlTypeMap.insert({ "bool", SQL_BIT });
@@ -152,6 +177,21 @@ namespace ODBCUtil
 				sqlTypeMap.insert({ "WCHAR[]", SQL_WVARCHAR });
 				sqlTypeMap.insert({ "const WCHAR*", SQL_WVARCHAR });
 				sqlTypeMap.insert({ "FWString", SQL_WVARCHAR });
+				sqlTypeMap.insert({ "FString", SQL_VARCHAR });
+
+				// columnSizeMap
+				columnSizeMap.insert({ "bool", sizeof(bool) });
+				columnSizeMap.insert({ "short", sizeof(short) });
+				columnSizeMap.insert({ "int", sizeof(int) });
+				columnSizeMap.insert({ "float", sizeof(float) });
+				columnSizeMap.insert({ "double", sizeof(double) });
+				columnSizeMap.insert({ "long long", sizeof(long long) });
+				columnSizeMap.insert({ "__int64", sizeof(__int64) });
+				columnSizeMap.insert({ "std::wstring", SQL_STRING_LENGTH });
+				columnSizeMap.insert({ "WCHAR[]", SQL_STRING_LENGTH });
+				columnSizeMap.insert({ "const WCHAR*", SQL_STRING_LENGTH });
+				columnSizeMap.insert({ "FWString", SQL_STRING_LENGTH });
+				columnSizeMap.insert({ "FString", SQL_STRING_LENGTH });
 			}
 			~SQLTypeGetterFromString() = default;
 
@@ -185,11 +225,26 @@ namespace ODBCUtil
 				return findIter->second;
 			}
 
+			SQLLEN GetBufferSize(const std::string& typeString)
+			{
+				auto findIter = columnSizeMap.find(typeString);
+				if (findIter == columnSizeMap.end())
+				{
+					return 0;
+				}
+
+				return findIter->second;
+			}
+
 			SQLPOINTER GetPointerFromPointerTypeString(const std::string& typeString, const void* input)
 			{
 				if (typeString == "FWString")
 				{
 					return (SQLPOINTER)(((FWString*)input)->GetCString());
+				}
+				else if (typeString == "FString")
+				{
+					return (SQLPOINTER)(((FString*)input)->GetCString());
 				}
 
 				return (SQLPOINTER)input;
@@ -198,6 +253,7 @@ namespace ODBCUtil
 		private:
 			std::map<std::string, SQLSMALLINT> cTypeMap;
 			std::map<std::string, SQLSMALLINT> sqlTypeMap;
+			std::map<std::string, SQLLEN> columnSizeMap;
 		};
 	}
 
@@ -225,6 +281,4 @@ namespace ODBCUtil
 	bool DBSendQuery(const std::wstring& query, SQLHSTMT& stmtHandle);
 	bool DBSendQueryDirect(const std::wstring& query, SQLHSTMT& stmtHandle);
 	bool DBSendQueryWithPrepare(const std::wstring& query, SQLHSTMT& stmtHandle);
-
-	void GetDBResult(SQLHSTMT& stmtHandle);
 }

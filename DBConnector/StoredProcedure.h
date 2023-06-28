@@ -105,17 +105,50 @@ public:
 	using ResultType = DB_IgnoreType;
 };
 
-//class SELECT_TEST : public IStoredProcedure
-//{
-//	DEFINE_CLASS_INFO(SELECT_TEST);
-//
-//	REGISTER_PROPERTY(id);
-//
-//public:
-//	long long id = 0;
-//
-//	using ResultType = FWString;
-//};
+class SELECT_TEST : public IStoredProcedure
+{
+	DEFINE_CLASS_INFO(SELECT_TEST);
+
+	REGISTER_PROPERTY(id);
+
+public:
+	SELECT_TEST()
+	{
+		INPUT_REAL_POINTER(id);
+	}
+	long long id = 0;
+
+	using ResultType = FWStringResultType;
+};
+
+class SELECT_TEST_2 : public IStoredProcedure
+{
+	DEFINE_CLASS_INFO(SELECT_TEST_2);
+
+	REGISTER_PROPERTY(id);
+
+public:
+	SELECT_TEST_2()
+	{
+		INPUT_REAL_POINTER(id);
+	}
+	long long id = 0;
+
+	using ResultType = SelectTest2ResultType;
+};
+
+class SELECT_TEST_3 : public IStoredProcedure
+{
+	DEFINE_CLASS_INFO(SELECT_TEST_3);
+
+
+public:
+	SELECT_TEST_3()
+	{
+	}
+
+	using ResultType = SelectTest2ResultType;
+};
 
 #if UNIT_TEST
 	#define INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, Procedure)\
@@ -135,6 +168,9 @@ public:
 		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, test)\
 		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, update_test)\
 		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, string_test_proc)\
+		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SELECT_TEST)\
+		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SELECT_TEST_2)\
+		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SELECT_TEST_3)\
 	}
 #endif
 

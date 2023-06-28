@@ -1,10 +1,14 @@
 #pragma once
 #include <string>
+#include "ODBCConst.h"
 
 class FString
 {
 public:
-    FString() = default;
+    FString()
+    {
+        thisString.reserve(SQL_STRING_LENGTH);
+    };
 
     FString(const char* inString)
     {
@@ -32,6 +36,11 @@ public:
         return thisString == inCompareString;
     }
 
+    const char* GetCString() const
+    {
+        return thisString.c_str();
+    }
+
 private:
     std::string thisString = "";
 };
@@ -39,7 +48,10 @@ private:
 class FWString
 {
 public:
-    FWString() = default;
+    FWString()
+    {
+        thisString.reserve(SQL_STRING_LENGTH);
+    };
 
     FWString(const WCHAR* inString)
     {

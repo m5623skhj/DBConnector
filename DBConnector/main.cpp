@@ -111,7 +111,7 @@ int main()
         return 0;
     }
 
-    auto selectResult = connector.GetDBResult<SELECT_TEST_2::ResultType>(conn.value().stmtHandle);
+    auto selectResult = connector.GetSPResult<SELECT_TEST_2::ResultType>(conn.value().stmtHandle);
     if (selectResult == std::nullopt)
     {
         return 0;
@@ -124,7 +124,7 @@ int main()
         return 0;
     }
 
-    auto selectResult2 = connector.GetDBResult<SELECT_TEST_3::ResultType>(conn.value().stmtHandle);
+    auto selectResult2 = connector.GetSPResult<SELECT_TEST_3::ResultType>(conn.value().stmtHandle);
     if (selectResult2 == std::nullopt)
     {
         return 0;

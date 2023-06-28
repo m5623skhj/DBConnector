@@ -128,21 +128,20 @@ public:
 			return false;
 		}
 
-		std::vector<std::pair<PropertyName, PropertyTypeName>> propertyList;
-		procedure.StaticTypeInfo().GetAllProperties(propertyList);
+		auto propertyList = procedure.StaticTypeInfo().GetAllPropertyTypeName();
 		int paramLocation = 1;
 
-		for (const auto& thisProperty : propertyList)
+		for (const auto& property : propertyList)
 		{
 			int pointerPos = paramLocation - 1;
 
 			SQLPOINTER inputPointer = ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst()
-				.GetPointerFromPointerTypeString(thisProperty.second, procedure.realPointerList[pointerPos]);
+				.GetPointerFromPointerTypeString(property, procedure.realPointerList[pointerPos]);
 
 			if (ODBCUtil::SQLIsSuccess(ODBCUtil::SQLIsSuccess(SQLBindParameter(
 				stmtHandle, paramLocation, SQL_PARAM_INPUT,
-				ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst().GetCType(thisProperty.second),
-				ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst().GetSQLType(thisProperty.second)
+				ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst().GetCType(property),
+				ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst().GetSQLType(property)
 				, 0, 0, inputPointer, 0, NULL))) == false)
 			{
 				ODBCUtil::PrintSQLErrorMessage(stmtHandle);
@@ -163,7 +162,7 @@ public:
 
 #pragma region get stored procedure result
 	template<typename QueryResult>
-	std::optional<std::vector<QueryResult>> GetDBResult(SQLHSTMT& stmtHandle)
+	std::optional<std::vector<QueryResult>> GetSPResult(SQLHSTMT& stmtHandle)
 	{
 		static_assert(std::is_base_of<IResultType, QueryResult>::value, "Only use derived classes from IStoredProcedure");
 
@@ -232,7 +231,7 @@ private:
 	WCHAR catalogName[16];
 	WCHAR schemaName[16];
 	WCHAR driver[64];
-	short port;
+	short port = 0;
 
-	int connectionPoolSize = 4;
+	int connectionPoolSize = 0;
 };

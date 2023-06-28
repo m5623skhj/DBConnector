@@ -3,6 +3,7 @@
 #include "StoredProcedure.h"
 #include <string>
 #include "ODBCConst.h"
+#include <unordered_map>
 
 namespace ODBCUtil
 {
@@ -251,9 +252,9 @@ namespace ODBCUtil
 			}
 
 		private:
-			std::map<std::string, SQLSMALLINT> cTypeMap;
-			std::map<std::string, SQLSMALLINT> sqlTypeMap;
-			std::map<std::string, SQLLEN> columnSizeMap;
+			std::unordered_map<std::string, SQLSMALLINT> cTypeMap;
+			std::unordered_map<std::string, SQLSMALLINT> sqlTypeMap;
+			std::unordered_map<std::string, SQLLEN> columnSizeMap;
 		};
 	}
 

@@ -23,7 +23,7 @@ bool TryDBMigration()
         return false;
     }
 
-    std::string migratorPath = cwd + MIGRATOR_PATH;
+    string migratorPath = cwd + MIGRATOR_PATH;
 
     int migratorResult = system(migratorPath.c_str());
     if (migratorResult != 0)
@@ -51,7 +51,7 @@ int main()
     if (GTestHelper::StartTest() == false)
     {
         cout << "---------------------" << endl;
-        cout << "GTest failed" << std::endl;
+        cout << "GTest failed" << endl;
         cout << "---------------------" << endl << endl << endl;
         return 0;
     }
@@ -85,7 +85,7 @@ int main()
     } while (false);
 
     auto conn = connector.GetConnection();
-    if (conn == std::nullopt)
+    if (conn == nullopt)
     {
         return 0;
     }
@@ -97,7 +97,7 @@ int main()
     connector.CallSPDirectWithSPObject(conn.value().stmtHandle, procedure, testProcedure);
 
     auto procedure2 = connector.GetProcedureInfo("string_test_proc");
-    std::wstring testString2 = L"ttttteeeee";
+    wstring testString2 = L"ttttteeeee";
     if (connector.CallSPDirect(conn.value().stmtHandle, procedure2, testString2) == false)
     {
         return 0;
@@ -112,9 +112,14 @@ int main()
     }
 
     auto selectResult = connector.GetSPResult<SELECT_TEST_2::ResultType>(conn.value().stmtHandle);
-    if (selectResult == std::nullopt)
+    if (selectResult == nullopt)
     {
         return 0;
+    }
+
+    for (const auto& result : selectResult.value())
+    {
+        wcout << L"no : " << result.no << L", tablename : " << result.tablename << endl;
     }
     
     auto selectTest3 = connector.GetProcedureInfo("SELECT_TEST_3");
@@ -125,9 +130,14 @@ int main()
     }
 
     auto selectResult2 = connector.GetSPResult<SELECT_TEST_3::ResultType>(conn.value().stmtHandle);
-    if (selectResult2 == std::nullopt)
+    if (selectResult2 == nullopt)
     {
         return 0;
+    }
+
+    for (const auto& result : selectResult2.value())
+    {
+        wcout << L"no : " << result.no << L", tablename : " << result.tablename << endl;
     }
 
     //DBServer dbServer(L"DBServerOptionFile.txt");

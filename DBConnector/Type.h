@@ -41,6 +41,12 @@ public:
         return thisString.c_str();
     }
 
+    friend std::ostream& operator<<(std::ostream& stream, const FString& string)
+    {
+        stream << string.GetCString();
+        return stream;
+    }
+
 private:
     std::string thisString = "";
 };
@@ -87,6 +93,12 @@ public:
     const WCHAR* GetCString() const
     {
         return thisString.c_str();
+    }
+
+    friend std::wostream& operator<<(std::wostream& stream, const FWString& string)
+    {
+        stream << string.GetCString();
+        return stream;
     }
 
 private:

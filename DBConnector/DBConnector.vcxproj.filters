@@ -40,6 +40,9 @@
     <Filter Include="소스 파일\DBServer">
       <UniqueIdentifier>{fd38075c-7c3c-4e43-99de-822325884fe5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="소스 파일\Protocol">
+      <UniqueIdentifier>{0824d113-c403-4b3a-8764-e419c4f7c532}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ODBCConnector.cpp">
@@ -90,6 +93,9 @@
     <ClCompile Include="..\..\..\..\Desktop\Common\Log.cpp">
       <Filter>소스 파일\Include</Filter>
     </ClCompile>
+    <ClCompile Include="PakcetHandler.cpp">
+      <Filter>소스 파일\DBServer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DBConnector.h">
@@ -139,6 +145,9 @@
     </ClInclude>
     <ClInclude Include="DBServer.h">
       <Filter>소스 파일\DBServer</Filter>
+    </ClInclude>
+    <ClInclude Include="DBServerProtocol.h">
+      <Filter>소스 파일\Protocol</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

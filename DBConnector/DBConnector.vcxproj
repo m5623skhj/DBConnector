@@ -155,19 +155,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Desktop\Common\LanServer.cpp" />
-    <ClCompile Include="..\..\..\..\Desktop\Common\LanServerSerializeBuf.cpp" />
+    <ClCompile Include="..\..\..\..\Desktop\Common\LanServer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\Common\LanServerSerializeBuf.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\Desktop\Common\Log.cpp" />
     <ClCompile Include="..\..\..\..\Desktop\Common\Parse.cpp" />
     <ClCompile Include="..\..\..\..\Desktop\Common\PreCompile.cpp" />
     <ClCompile Include="..\..\..\..\Desktop\Common\Ringbuffer.cpp" />
     <ClCompile Include="DBConnectorTest.cpp" />
-    <ClCompile Include="DBServer.cpp" />
+    <ClCompile Include="DBServer.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ODBCConnector.cpp" />
     <ClCompile Include="ODBCMetaData.cpp" />
     <ClCompile Include="ODBCUtil.cpp" />
     <ClCompile Include="GoogleTest.cpp" />
+    <ClCompile Include="PakcetHandler.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="PropertyMacro.h" />
     <ClCompile Include="ReflectionTest.cpp" />
     <ClCompile Include="TypeInfo.cpp" />
@@ -177,7 +186,10 @@
     <ClInclude Include="DBConnector.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="DBServer.h" />
+    <ClInclude Include="DBServer.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="DBServerProtocol.h" />
     <ClInclude Include="GoogleTest.h" />
     <ClInclude Include="ODBCConnector.h" />
     <ClInclude Include="ODBCConst.h" />

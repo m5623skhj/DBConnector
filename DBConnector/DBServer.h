@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LanServer.h"
+#include <string>
 
 class DBServer : public CLanServer
 {

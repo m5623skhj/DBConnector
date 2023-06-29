@@ -1,46 +1,46 @@
+#include "PreCompile.h"
 #include "DBServer.h"
 #include "DBServerProtocol.h"
 #include "LanServerSerializeBuf.h"
-#include <iostream>
+#include "StoredProcedure.h"
 
 using namespace std;
-using namespace DBServerProtocol;
 
 void DBServer::HandlePacket(WORD packetId, CSerializationBuf& recvBuffer)
 {
 	switch (packetId)
 	{
-	case PACKET_ID::TEST:
+	case DBServerProtocol::PACKET_ID::TEST:
 	{
 		test t;
 		recvBuffer >> t.id3;
-		recvBuffer.ReadBuffer((char*)t.teststring, sizeof(t.teststring));
+		recvBuffer.ReadBuffer((char*)t.teststring.GetCString(), sizeof(t.teststring));
 	}
-	case PACKET_ID::INPUT_TEST:
+	case DBServerProtocol::PACKET_ID::INPUT_TEST:
 	{
 		input_test i;
 		recvBuffer >> i.item >> i.item2;
 	}
-	case PACKET_ID::SELECT_TEST:
+	case DBServerProtocol::PACKET_ID::SELECT_TEST:
 	{
-		select_test s;
+		SELECT_TEST s;
 		recvBuffer >> s.id;
 	}
-	case PACKET_ID::SELECT_TEST_2:
+	case DBServerProtocol::PACKET_ID::SELECT_TEST_2:
 	{
-		select_test_2 s;
+		SELECT_TEST_2 s;
 		recvBuffer >> s.id;
 	}
-	case PACKET_ID::SELECT_TEST_3:
+	case DBServerProtocol::PACKET_ID::SELECT_TEST_3:
 	{
-
+		SELECT_TEST_3 s;
 	}
-	case PACKET_ID::STRING_TEST_PROC:
+	case DBServerProtocol::PACKET_ID::STRING_TEST_PROC:
 	{
 		string_test_proc s;
-		recvBuffer.ReadBuffer((char*)s.test, sizeof(s.test));
+		recvBuffer.ReadBuffer((char*)s.test.GetCString(), sizeof(s.test));
 	}
-	case PACKET_ID::UPDATE_TEST:
+	case DBServerProtocol::PACKET_ID::UPDATE_TEST:
 	{
 		update_test u;
 		recvBuffer >> u._id;

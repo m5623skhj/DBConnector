@@ -20,4 +20,7 @@ protected:
 	virtual void OnWorkerThreadBegin();
 	virtual void OnWorkerThreadEnd();
 	virtual void OnError(st_Error* OutError);
+
+private:
+	void HandlePacket(WORD packetId, CSerializationBuf& recvBuffer);
 };

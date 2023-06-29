@@ -84,6 +84,7 @@ int main()
         cout << "---------------------" << endl << endl << endl;
     } while (false);
 
+    /*
     auto conn = connector.GetConnection();
     if (conn == nullopt)
     {
@@ -139,9 +140,9 @@ int main()
     {
         wcout << L"no : " << result.no << L", tablename : " << result.tablename << endl;
     }
+    */
 
-    //DBServer dbServer(L"DBServerOptionFile.txt");
-
+    DBServer dbServer(L"OptionFile/DBServerOptionFile.txt");
     connector.DisconnectDB();
 
     return 0;

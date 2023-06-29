@@ -1,12 +1,13 @@
 #include "PreCompile.h"
 #include "DBServer.h"
+#include "LanServerSerializeBuf.h"
 
 DBServer::DBServer(const std::wstring& optionFile)
 {
-	//if (Start(optionFile.c_str()) == false)
-	//{
-	//	g_Dump.Crash();
-	//}
+	if (Start(optionFile.c_str()) == false)
+	{
+		g_Dump.Crash();
+	}
 }
 
 DBServer::~DBServer()
@@ -31,7 +32,12 @@ bool DBServer::OnConnectionRequest()
 
 void DBServer::OnRecv(UINT64 ReceivedSessionID, CSerializationBuf* OutReadBuf)
 {
+	CSerializationBuf& recvBuffer = *OutReadBuf;
 
+	WORD packetId = 0;
+	recvBuffer >> packetId;
+
+	HandlePacket(packetId, recvBuffer);
 }
 
 void DBServer::OnSend(UINT64 ClientID, int sendsize)

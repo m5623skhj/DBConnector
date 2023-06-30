@@ -10,6 +10,9 @@ public:
 	explicit DBServer(const std::wstring& optionFile);
 	virtual ~DBServer();
 
+public:
+	void StopServer();
+
 protected:
 	virtual void OnClientJoin(UINT64 OutClientID);
 	virtual void OnClientLeave(UINT64 ClientID);

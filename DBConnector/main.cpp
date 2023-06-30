@@ -143,6 +143,18 @@ int main()
     */
 
     DBServer dbServer(L"OptionFile/DBServerOptionFile.txt");
+
+    while (true)
+    {
+        Sleep(1000);
+
+        if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+        {
+            dbServer.StopServer();
+            break;
+        }
+    }
+
     connector.DisconnectDB();
 
     return 0;

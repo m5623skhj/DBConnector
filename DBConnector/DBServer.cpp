@@ -8,9 +8,18 @@ DBServer::DBServer(const std::wstring& optionFile)
 	{
 		g_Dump.Crash();
 	}
+	
+	std::cout << "---------------------" << std::endl;
+	std::cout << "DBServer On" << std::endl;
+	std::cout << "---------------------" << std::endl;
 }
 
 DBServer::~DBServer()
+{
+	Stop();
+}
+
+void DBServer::StopServer()
 {
 	Stop();
 }

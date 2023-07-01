@@ -12,4 +12,5 @@ namespace DBServerProtocol
 		, STRING_TEST_PROC
 		, UPDATE_TEST
 	};
+	// with UINT64 sessionId;
 }

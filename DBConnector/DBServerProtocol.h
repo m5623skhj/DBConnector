@@ -2,7 +2,9 @@
 
 namespace DBServerProtocol
 {
-	enum PACKET_ID
+	// with success option?
+	// with UINT64 sessionId;
+	enum PACKET_ID : UINT
 	{
 		TEST = 0
 		, INPUT_TEST
@@ -12,5 +14,4 @@ namespace DBServerProtocol
 		, STRING_TEST_PROC
 		, UPDATE_TEST
 	};
-	// with UINT64 sessionId;
 }

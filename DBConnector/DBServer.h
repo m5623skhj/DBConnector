@@ -26,5 +26,5 @@ protected:
 	virtual void OnError(st_Error* OutError);
 
 private:
-	void HandlePacket(WORD packetId, CSerializationBuf& recvBuffer);
+	void HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf& recvBuffer);
 };

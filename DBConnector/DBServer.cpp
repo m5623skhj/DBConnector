@@ -43,10 +43,10 @@ void DBServer::OnRecv(UINT64 ReceivedSessionID, CSerializationBuf* OutReadBuf)
 {
 	CSerializationBuf& recvBuffer = *OutReadBuf;
 
-	WORD packetId = 0;
+	UINT packetId = 0;
 	recvBuffer >> packetId;
 
-	HandlePacket(packetId, recvBuffer);
+	HandlePacket(packetId, packetId, recvBuffer);
 }
 
 void DBServer::OnSend(UINT64 ClientID, int sendsize)

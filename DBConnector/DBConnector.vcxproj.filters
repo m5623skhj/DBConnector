@@ -146,8 +146,14 @@
     <ClInclude Include="DBServer.h">
       <Filter>소스 파일\DBServer</Filter>
     </ClInclude>
-    <ClInclude Include="DBServerProtocol.h">
+    <ClInclude Include="..\..\RIOServerTest\RIO_Test\Protocol.h">
       <Filter>소스 파일\Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="DBServerProtocol.h">
+      <Filter>소스 파일\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\RIOServerTest\RIO_Test\EnumType.h">
+      <Filter>소스 파일\Include</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

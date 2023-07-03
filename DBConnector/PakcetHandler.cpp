@@ -13,6 +13,9 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 {
 	ODBCConnector& connector = ODBCConnector::GetInst();
 	auto conn = connector.GetConnection();
+	UINT64 sessionId = 0;
+
+	recvBuffer >> sessionId;
 
 	switch (packetId)
 	{
@@ -37,19 +40,22 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 
 		CSerializationBuf& packet = *CSerializationBuf::Alloc();
 		UINT sendPackeId = static_cast<UINT>(PACKET_ID::CALL_TEST_PROCEDURE_PACKET_REPLY);
-		packet << sendPackeId;
+		packet << sendPackeId << sessionId;
 
 		SendPacket(requestSessionId, &packet);
+		break;
 	}
 	case DBServerProtocol::PACKET_ID::INPUT_TEST:
 	{
 		input_test i;
 		recvBuffer >> i.item >> i.item2;
+		break;
 	}
 	case DBServerProtocol::PACKET_ID::SELECT_TEST:
 	{
 		SELECT_TEST s;
 		recvBuffer >> s.id;
+		break;
 	}
 	case DBServerProtocol::PACKET_ID::SELECT_TEST_2:
 	{
@@ -78,7 +84,7 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 
 		CSerializationBuf& packet = *CSerializationBuf::Alloc();
 		UINT sendPackeId = static_cast<UINT>(PACKET_ID::CALL_SELECT_TEST_2_PROCEDURE_PACKET_REPLY);
-		packet << sendPackeId;
+		packet << sendPackeId << sessionId;
 
 		for (const auto& result : results.value())
 		{
@@ -87,20 +93,24 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 		}
 
 		SendPacket(requestSessionId, &packet);
+		break;
 	}
 	case DBServerProtocol::PACKET_ID::SELECT_TEST_3:
 	{
 		SELECT_TEST_3 s;
+		break;
 	}
 	case DBServerProtocol::PACKET_ID::STRING_TEST_PROC:
 	{
 		string_test_proc s;
 		recvBuffer.ReadBuffer((char*)s.test.GetCString(), sizeof(s.test));
+		break;
 	}
 	case DBServerProtocol::PACKET_ID::UPDATE_TEST:
 	{
 		update_test u;
 		recvBuffer >> u._id;
+		break;
 	}
 
 	default:

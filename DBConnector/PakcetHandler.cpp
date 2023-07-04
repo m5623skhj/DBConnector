@@ -118,6 +118,5 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 		break;
 	}
 
-	// Ä¿³Ø¼Ç ¹ÝÈ¯
 	connector.FreeConnection(conn.value());
 }

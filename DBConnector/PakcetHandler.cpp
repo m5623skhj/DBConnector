@@ -117,4 +117,7 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 		cout << "Invalid packet id : " << packetId << endl;
 		break;
 	}
+
+	// Ä¿³Ø¼Ç ¹ÝÈ¯
+	connector.FreeConnection(conn.value());
 }

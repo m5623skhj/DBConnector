@@ -29,6 +29,7 @@ public:
 
 public:
 	std::optional<DBConnection> GetConnection();
+	void FreeConnection(DBConnection& connection);
 
 private:
 	bool Initialize();
@@ -210,6 +211,7 @@ public:
 	SQLHSTMT GetDefaultStmtHandle();
 	SQLHDBC GetDefaultDBCHandle();
 	std::optional<DBConnection> GetConnection();
+	void FreeConnection(DBConnection& connection);
 
 private:
 	DBConnectionPool connectionPool;

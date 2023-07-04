@@ -54,6 +54,12 @@ std::optional<DBConnection> DBConnectionPool::GetConnection()
 	return connection;
 }
 
+void DBConnectionPool::FreeConnection(DBConnection& connection)
+{
+	std::lock_guard<std::mutex> lock(connectionLock);
+	connectionList.emplace_back(connection);
+}
+
 bool DBConnectionPool::Initialize() 
 {
 	SQLHENV enviromentHandle;
@@ -242,6 +248,11 @@ SQLHDBC ODBCConnector::GetDefaultDBCHandle()
 std::optional<DBConnection> ODBCConnector::GetConnection()
 {
 	return connectionPool.GetConnection();
+}
+
+void ODBCConnector::FreeConnection(DBConnection& connection)
+{
+	connectionPool.FreeConnection(connection);
 }
 
 bool ODBCConnector::OptionParsing(const std::wstring& optionFileName)

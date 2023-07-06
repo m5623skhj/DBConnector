@@ -25,7 +25,7 @@ BuildConfig.h의 UNIT_TEST를 0으로 수정하여 Google Test를 Off시킬 수 
 
 현재 테스트를 위하여 DBServer를 추가하여 [RIOTest의 DBClient](https://github.com/m5623skhj/RIOServerTest/blob/main/RIO_Test/DBClient.cpp)와 통신하며, 클라이언트가 요청한 프로시저를 호출합니다.
 
-현재 프로젝트를 그대로 실행시킬 시, 시작 흐릉은 아래와 같은 순서로 진행됩니다.
+현재 프로젝트를 그대로 실행시킬 시, 시작 흐름은 아래와 같은 순서로 진행됩니다.
 
 ![Start DBConnecotr   DBServer](https://github.com/m5623skhj/DBConnector/assets/42509418/0ccaa326-9aed-4a7d-9264-4299f637e7ce)
 

@@ -148,15 +148,4 @@ namespace ODBCUtil
 
 		return true;
 	}
-
-	void GetDBResult(SQLHSTMT& stmtHandle)
-	{
-		// ¿€º∫¡ﬂ...
-		while (SQLFetch(stmtHandle) == SQL_SUCCESS)
-		{
-
-		}
-
-		SQLCloseCursor(stmtHandle);
-	}
 }

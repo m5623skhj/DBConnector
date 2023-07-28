@@ -77,7 +77,7 @@ cs 파일이 생성되며, Migrator.csproj 파일에 해당 파일을 사용한�
  
 * ODBCMetaData
   * 사용자가 정의한 프로시저들의 메타데이터를 관리
-  * 실제 DB에서 DB의 이름, Input column, Output column 들의 메타데이터를 map으로 관리
+  * 실제 DB에서 DB의 SP 이름, Input column, Output column 들의 메타데이터를 map으로 관리
 
 ---
 

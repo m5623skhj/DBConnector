@@ -19,6 +19,10 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 
 	switch (packetId)
 	{
+	case DBServerProtocol::PACKET_ID::BATCHED_DB_JOB:
+	{
+		break;
+	}
 	case DBServerProtocol::PACKET_ID::TEST:
 	{
 		auto procedure = connector.GetProcedureInfo("test");

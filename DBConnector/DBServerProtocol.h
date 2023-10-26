@@ -7,6 +7,7 @@ namespace DBServerProtocol
 	enum PACKET_ID : UINT
 	{
 		TEST = 0
+		, BATCHED_DB_JOB
 		, INPUT_TEST
 		, SELECT_TEST
 		, SELECT_TEST_2

@@ -2,6 +2,14 @@
 
 #include "LanServer.h"
 #include <string>
+#include <map>
+#include <mutex>
+
+struct BatchedDBJob
+{
+	unsigned char batchSize = 0;
+	std::map<unsigned char, CSerializationBuf*> bufferList;
+};
 
 class DBServer : public CLanServer
 {
@@ -26,5 +34,11 @@ protected:
 	virtual void OnError(st_Error* OutError);
 
 private:
-	void HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf& recvBuffer);
+	void HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf* recvBuffer);
+
+#pragma region BatchedDBJob
+private:
+	std::mutex batchedDBJobMapLock;
+	std::map<UINT64, BatchedDBJob> batchedDBJobMap;
+#pragma endregion BatchedDBJob
 };

@@ -41,10 +41,8 @@ bool DBServer::OnConnectionRequest()
 
 void DBServer::OnRecv(UINT64 ReceivedSessionID, CSerializationBuf* OutReadBuf)
 {
-	CSerializationBuf& recvBuffer = *OutReadBuf;
-
 	UINT packetId = 0;
-	recvBuffer >> packetId;
+	*OutReadBuf >> packetId;
 
 	HandlePacket(ReceivedSessionID, packetId, recvBuffer);
 }

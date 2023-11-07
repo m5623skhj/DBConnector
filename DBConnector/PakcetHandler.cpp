@@ -9,13 +9,13 @@
 
 using namespace std;
 
-void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf& recvBuffer)
+void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf* recvBuffer)
 {
 	ODBCConnector& connector = ODBCConnector::GetInst();
 	auto conn = connector.GetConnection();
 	UINT64 sessionId = 0;
 
-	recvBuffer >> sessionId;
+	*recvBuffer >> sessionId;
 
 	switch (packetId)
 	{
@@ -33,8 +33,8 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 		}
 
 		test t;
-		recvBuffer >> t.id3;
-		recvBuffer.ReadBuffer((char*)t.teststring.GetCString(), sizeof(t.teststring));
+		*recvBuffer >> t.id3;
+		recvBuffer->ReadBuffer((char*)t.teststring.GetCString(), sizeof(t.teststring));
 
 		if (connector.CallSPDirectWithSPObject(conn.value().stmtHandle, procedure, t) == false)
 		{
@@ -52,13 +52,13 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 	case DBServerProtocol::PACKET_ID::INPUT_TEST:
 	{
 		input_test i;
-		recvBuffer >> i.item >> i.item2;
+		*recvBuffer >> i.item >> i.item2;
 		break;
 	}
 	case DBServerProtocol::PACKET_ID::SELECT_TEST:
 	{
 		SELECT_TEST s;
-		recvBuffer >> s.id;
+		*recvBuffer >> s.id;
 		break;
 	}
 	case DBServerProtocol::PACKET_ID::SELECT_TEST_2:
@@ -71,7 +71,7 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 		}
 
 		SELECT_TEST_2 s;
-		recvBuffer >> s.id;
+		*recvBuffer >> s.id;
 
 		if (connector.CallSPDirectWithSPObject(conn.value().stmtHandle, procedure, s) == false)
 		{
@@ -107,13 +107,13 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 	case DBServerProtocol::PACKET_ID::STRING_TEST_PROC:
 	{
 		string_test_proc s;
-		recvBuffer.ReadBuffer((char*)s.test.GetCString(), sizeof(s.test));
+		recvBuffer->ReadBuffer((char*)s.test.GetCString(), sizeof(s.test));
 		break;
 	}
 	case DBServerProtocol::PACKET_ID::UPDATE_TEST:
 	{
 		update_test u;
-		recvBuffer >> u._id;
+		*recvBuffer >> u._id;
 		break;
 	}
 

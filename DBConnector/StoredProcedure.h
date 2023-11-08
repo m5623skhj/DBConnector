@@ -137,19 +137,6 @@ public:
 	using ResultType = SelectTest2ResultType;
 };
 
-class SELECT_TEST_3 : public IStoredProcedure
-{
-	DEFINE_CLASS_INFO(SELECT_TEST_3);
-
-
-public:
-	SELECT_TEST_3()
-	{
-	}
-
-	using ResultType = SelectTest2ResultType;
-};
-
 #if UNIT_TEST
 	#define INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, Procedure)\
 	{\
@@ -170,7 +157,6 @@ public:
 		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, string_test_proc)\
 		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SELECT_TEST)\
 		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SELECT_TEST_2)\
-		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SELECT_TEST_3)\
 	}
 #endif
 

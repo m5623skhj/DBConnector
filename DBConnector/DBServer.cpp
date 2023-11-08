@@ -44,7 +44,7 @@ void DBServer::OnRecv(UINT64 ReceivedSessionID, CSerializationBuf* OutReadBuf)
 	UINT packetId = 0;
 	*OutReadBuf >> packetId;
 
-	HandlePacket(ReceivedSessionID, packetId, recvBuffer);
+	HandlePacket(ReceivedSessionID, packetId, OutReadBuf);
 }
 
 void DBServer::OnSend(UINT64 ClientID, int sendsize)

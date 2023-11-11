@@ -1,11 +1,9 @@
 #include "PreCompile.h"
 #include "DBServer.h"
-#include "DBServerProtocol.h"
 #include "LanServerSerializeBuf.h"
 #include "StoredProcedure.h"
 #include "ODBCConnector.h"
 #include "../../RIOServerTest/RIO_Test/Protocol.h"
-#include "../../RIOServerTest/RIO_Test/EnumType.h"
 
 using namespace std;
 
@@ -17,7 +15,7 @@ FORCEINLINE bool IsSuccess(const ProcedureResult& result)
 void DBServer::InsertBatchJob(UINT64 userSessionId, unsigned char batchSize)
 {
 	std::lock_guard lock(batchedDBJobMapLock);
-	batchedDBJobMap.insert({ userSessionId, make_shared<BatchedDBJob>(batchSize)});
+	batchedDBJobMap.insert({ userSessionId, make_shared<BatchedDBJob>(batchSize) });
 }
 
 void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf* recvBuffer)
@@ -26,7 +24,7 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 
 	*recvBuffer >> userSessionId;
 
-	if (packetId == DBServerProtocol::PACKET_ID::BATCHED_DB_JOB)
+	if (packetId == static_cast<UINT>(PACKET_ID::BATCHED_DB_JOB))
 	{
 		unsigned char batchSize = 0;
 		*recvBuffer >> batchSize;
@@ -41,7 +39,7 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 		}
 		else
 		{
-			auto result = HandleImpl(requestSessionId, userSessionId, packetId, recvBuffer);
+			auto result = HandleImpl(requestSessionId, userSessionId, static_cast<PACKET_ID>(packetId), recvBuffer);
 			if (IsSuccess(result) == true)
 			{
 				SendPacket(requestSessionId, result.second);
@@ -87,7 +85,7 @@ void DBServer::DoBatchedJob(UINT64 requestSessionId, UINT64 userSessionId, std::
 	bool isError = false;
 	for (auto& job : batchedJob->bufferList)
 	{
-		auto result = HandleImpl(requestSessionId, userSessionId, job.first, job.second);
+		auto result = HandleImpl(requestSessionId, userSessionId, static_cast<PACKET_ID>(job.first), job.second);
 		CSerializationBuf::Free(job.second);
 
 		if (IsSuccess(result) == true)
@@ -138,7 +136,7 @@ bool DBServer::IsBatchJobWaitingUser(UINT64 userSessionId)
 	return true;
 }
 
-ProcedureResult DBServer::HandleImpl(UINT64 requestSessionId, UINT64 userSessionId, UINT packetId, CSerializationBuf* recvBuffer)
+ProcedureResult DBServer::HandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer)
 {
 	CSerializationBuf* packet = CSerializationBuf::Alloc();
 	bool isSuccess = false;
@@ -147,7 +145,7 @@ ProcedureResult DBServer::HandleImpl(UINT64 requestSessionId, UINT64 userSession
 
 	switch (packetId)
 	{
-	case DBServerProtocol::PACKET_ID::TEST:
+	case PACKET_ID::TEST:
 	{
 		auto procedure = connector.GetProcedureInfo("test");
 		if (procedure == nullptr)
@@ -169,7 +167,7 @@ ProcedureResult DBServer::HandleImpl(UINT64 requestSessionId, UINT64 userSession
 		isSuccess = true;
 		break;
 	}
-	case DBServerProtocol::PACKET_ID::SELECT_TEST_2:
+	case PACKET_ID::SELECT_TEST_2:
 	{
 		auto procedure = connector.GetProcedureInfo("SELECT_TEST_2");
 		if (procedure == nullptr)
@@ -204,7 +202,7 @@ ProcedureResult DBServer::HandleImpl(UINT64 requestSessionId, UINT64 userSession
 	}
 
 	default:
-		cout << "Invalid packet id : " << packetId << endl;
+		cout << "Invalid packet id : " << static_cast<UINT>(packetId) << endl;
 		break;
 	}
 

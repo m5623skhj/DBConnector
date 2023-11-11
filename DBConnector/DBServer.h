@@ -5,6 +5,7 @@
 #include <map>
 #include <list>
 #include <mutex>
+#include "../../RIOServerTest/RIO_Test/EnumType.h"
 
 struct BatchedDBJob
 {
@@ -50,7 +51,7 @@ private:
 	bool IsBatchJobWaitingUser(UINT64 userSessionId);
 	void AddItemForJobStart(UINT64 requestSessionId, UINT64 userSessionId, UINT packetId, CSerializationBuf* recvBuffer);
 	void DoBatchedJob(UINT64 requestSessionId, UINT64 userSessionId, std::shared_ptr<BatchedDBJob> batchedJob);
-	ProcedureResult HandleImpl(UINT64 requestSessionId, UINT64 userSessionId, UINT packetId, CSerializationBuf* recvBuffer);
+	ProcedureResult HandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer);
 
 #pragma region BatchedDBJob
 private:

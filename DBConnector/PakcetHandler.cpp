@@ -1,15 +1,13 @@
 #include "PreCompile.h"
 #include "DBServer.h"
-#include "DBServerProtocol.h"
 #include "LanServerSerializeBuf.h"
 #include "StoredProcedure.h"
 #include "ODBCConnector.h"
 #include "../../RIOServerTest/RIO_Test/Protocol.h"
-#include "../../RIOServerTest/RIO_Test/EnumType.h"
 
 using namespace std;
 
-void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf* recvBuffer)
+void DBServer::HandlePacket(UINT64 requestSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer)
 {
 	ODBCConnector& connector = ODBCConnector::GetInst();
 	auto conn = connector.GetConnection();
@@ -19,11 +17,11 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 
 	switch (packetId)
 	{
-	case DBServerProtocol::PACKET_ID::BATCHED_DB_JOB:
+	case PACKET_ID::BATCHED_DB_JOB:
 	{
 		break;
 	}
-	case DBServerProtocol::PACKET_ID::TEST:
+	case PACKET_ID::TEST:
 	{
 		auto procedure = connector.GetProcedureInfo("test");
 		if (procedure == nullptr)
@@ -49,19 +47,21 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 		SendPacket(requestSessionId, &packet);
 		break;
 	}
-	case DBServerProtocol::PACKET_ID::INPUT_TEST:
+	/*
+	case PACKET_ID::INPUT_TEST:
 	{
 		input_test i;
 		*recvBuffer >> i.item >> i.item2;
 		break;
 	}
-	case DBServerProtocol::PACKET_ID::SELECT_TEST:
+	case PACKET_ID::SELECT_TEST:
 	{
 		SELECT_TEST s;
 		*recvBuffer >> s.id;
 		break;
 	}
-	case DBServerProtocol::PACKET_ID::SELECT_TEST_2:
+	*/
+	case PACKET_ID::SELECT_TEST_2:
 	{
 		auto procedure = connector.GetProcedureInfo("SELECT_TEST_2");
 		if (procedure == nullptr)
@@ -98,26 +98,28 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 		SendPacket(requestSessionId, &packet);
 		break;
 	}
-	case DBServerProtocol::PACKET_ID::SELECT_TEST_3:
+	/*
+	case PACKET_ID::SELECT_TEST_3:
 	{
 		SELECT_TEST_3 s;
 		break;
 	}
-	case DBServerProtocol::PACKET_ID::STRING_TEST_PROC:
+	case PACKET_ID::STRING_TEST_PROC:
 	{
 		string_test_proc s;
 		recvBuffer->ReadBuffer((char*)s.test.GetCString(), sizeof(s.test));
 		break;
 	}
-	case DBServerProtocol::PACKET_ID::UPDATE_TEST:
+	case PACKET_ID::UPDATE_TEST:
 	{
 		update_test u;
 		*recvBuffer >> u._id;
 		break;
 	}
+	*/
 
 	default:
-		cout << "Invalid packet id : " << packetId << endl;
+		cout << "Invalid packet id : " << static_cast<UINT>(packetId) << endl;
 		break;
 	}
 

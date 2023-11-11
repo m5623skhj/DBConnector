@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <mutex>
+#include "../../RIOServerTest/RIO_Test/EnumType.h"
 
 struct BatchedDBJob
 {
@@ -34,7 +35,7 @@ protected:
 	virtual void OnError(st_Error* OutError);
 
 private:
-	void HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf* recvBuffer);
+	void HandlePacket(UINT64 requestSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer);
 
 #pragma region BatchedDBJob
 private:

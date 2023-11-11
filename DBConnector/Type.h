@@ -47,6 +47,11 @@ public:
         return stream;
     }
 
+    const std::string& GetOriginString() const
+    {
+        return thisString;
+    }
+
 private:
     std::string thisString = "";
 };

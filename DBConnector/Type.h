@@ -101,6 +101,11 @@ public:
         return stream;
     }
 
+    const std::wstring& GetOriginString() const
+    {
+        return thisString;
+    }
+
 private:
     std::wstring thisString = L"";
 };

@@ -92,8 +92,7 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 
 		for (const auto& result : results.value())
 		{
-			packet << result.no;
-			packet.WriteBuffer((char*)(result.tablename.GetCString()), sizeof(result.tablename));
+			packet << result.no << result.tablename.GetOriginString();
 		}
 
 		SendPacket(requestSessionId, &packet);

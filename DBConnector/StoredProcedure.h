@@ -12,130 +12,133 @@
 	realPointerList.emplace_back(&InputValue);\
 }
 
-class IStoredProcedure
+namespace SP
 {
-	DEFINE_CLASS_INFO(IStoredProcedure);
 
-public:
-	virtual ~IStoredProcedure() {}
-
-public:
-	std::vector<void*> realPointerList;
-};
-
-class test : public IStoredProcedure
-{
-	DEFINE_CLASS_INFO(test);
-
-	REGISTER_PROPERTY(id3);
-	REGISTER_PROPERTY(teststring);
-
-public:
-	test()
+	class IStoredProcedure
 	{
-		INPUT_REAL_POINTER(id3);
-		INPUT_REAL_POINTER(teststring);
-	}
-	virtual ~test() {}
+		DEFINE_CLASS_INFO(IStoredProcedure);
 
-public:
-	int id3 = 0;
-	FWString teststring;
+	public:
+		virtual ~IStoredProcedure() {}
 
-	using ResultType = DB_IgnoreType;
-};
+	public:
+		std::vector<void*> realPointerList;
+	};
 
-class update_test : public IStoredProcedure
-{
-	DEFINE_CLASS_INFO(update_test);
-
-	REGISTER_PROPERTY(_id);
-
-public:
-	update_test()
+	class test : public IStoredProcedure
 	{
-		INPUT_REAL_POINTER(_id);
-	}
-	virtual ~update_test() {}
+		DEFINE_CLASS_INFO(test);
 
-public:
-	long long _id = 0;
+		REGISTER_PROPERTY(id3);
+		REGISTER_PROPERTY(teststring);
 
-	using ResultType = DB_IgnoreType;
-};
+	public:
+		test()
+		{
+			INPUT_REAL_POINTER(id3);
+			INPUT_REAL_POINTER(teststring);
+		}
+		virtual ~test() {}
 
-class string_test_proc : public IStoredProcedure
-{
-	DEFINE_CLASS_INFO(string_test_proc);
+	public:
+		int id3 = 0;
+		FWString teststring;
 
-	REGISTER_PROPERTY(test);
+		using ResultType = DB_IgnoreType;
+	};
 
-public:
-	string_test_proc()
+	class update_test : public IStoredProcedure
 	{
-		INPUT_REAL_POINTER(test);
-	}
-	virtual ~string_test_proc() {}
+		DEFINE_CLASS_INFO(update_test);
 
-public:
-	FWString test;
+		REGISTER_PROPERTY(_id);
 
-	using ResultType = DB_IgnoreType;
-};
+	public:
+		update_test()
+		{
+			INPUT_REAL_POINTER(_id);
+		}
+		virtual ~update_test() {}
 
-class input_test : public IStoredProcedure
-{
-	DEFINE_CLASS_INFO(input_test);
+	public:
+		long long _id = 0;
 
-	REGISTER_PROPERTY(item);
-	REGISTER_PROPERTY(item2);
+		using ResultType = DB_IgnoreType;
+	};
 
-public:
-	input_test()
+	class string_test_proc : public IStoredProcedure
 	{
-		INPUT_REAL_POINTER(item);
-		INPUT_REAL_POINTER(item2);
-	}
-	virtual ~input_test() {}
+		DEFINE_CLASS_INFO(string_test_proc);
 
-public:
-	int item;
-	int item2;
+		REGISTER_PROPERTY(test);
 
-	using ResultType = DB_IgnoreType;
-};
+	public:
+		string_test_proc()
+		{
+			INPUT_REAL_POINTER(test);
+		}
+		virtual ~string_test_proc() {}
 
-class SELECT_TEST : public IStoredProcedure
-{
-	DEFINE_CLASS_INFO(SELECT_TEST);
+	public:
+		FWString test;
 
-	REGISTER_PROPERTY(id);
+		using ResultType = DB_IgnoreType;
+	};
 
-public:
-	SELECT_TEST()
+	class input_test : public IStoredProcedure
 	{
-		INPUT_REAL_POINTER(id);
-	}
-	long long id = 0;
+		DEFINE_CLASS_INFO(input_test);
 
-	using ResultType = FWStringResultType;
-};
+		REGISTER_PROPERTY(item);
+		REGISTER_PROPERTY(item2);
 
-class SELECT_TEST_2 : public IStoredProcedure
-{
-	DEFINE_CLASS_INFO(SELECT_TEST_2);
+	public:
+		input_test()
+		{
+			INPUT_REAL_POINTER(item);
+			INPUT_REAL_POINTER(item2);
+		}
+		virtual ~input_test() {}
 
-	REGISTER_PROPERTY(id);
+	public:
+		int item;
+		int item2;
 
-public:
-	SELECT_TEST_2()
+		using ResultType = DB_IgnoreType;
+	};
+
+	class SELECT_TEST : public IStoredProcedure
 	{
-		INPUT_REAL_POINTER(id);
-	}
-	long long id = 0;
+		DEFINE_CLASS_INFO(SELECT_TEST);
 
-	using ResultType = SelectTest2ResultType;
-};
+		REGISTER_PROPERTY(id);
+
+	public:
+		SELECT_TEST()
+		{
+			INPUT_REAL_POINTER(id);
+		}
+		long long id = 0;
+
+		using ResultType = FWStringResultType;
+	};
+
+	class SELECT_TEST_2 : public IStoredProcedure
+	{
+		DEFINE_CLASS_INFO(SELECT_TEST_2);
+
+		REGISTER_PROPERTY(id);
+
+	public:
+		SELECT_TEST_2()
+		{
+			INPUT_REAL_POINTER(id);
+		}
+		long long id = 0;
+
+		using ResultType = SelectTest2ResultType;
+	};
 
 #if UNIT_TEST
 	#define INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, Procedure)\
@@ -152,12 +155,13 @@ public:
 	}
 	
 	#define PROCEDURE_TEST_LIST(TestProcedureMap, ResultPropertyMap){\
-		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, test)\
-		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, update_test)\
-		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, string_test_proc)\
-		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SELECT_TEST)\
-		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SELECT_TEST_2)\
+		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SP::test)\
+		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SP::update_test)\
+		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SP::string_test_proc)\
+		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SP::SELECT_TEST)\
+		INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SP::SELECT_TEST_2)\
 	}
 #endif
+}
 
 //INPUT_TEST_PROCEDURE_MAP(TestProcedureMap, ResultPropertyMap, SELECT_TEST)\

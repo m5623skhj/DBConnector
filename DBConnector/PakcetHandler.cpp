@@ -153,7 +153,7 @@ ProcedureResult DBServer::HandleImpl(UINT64 requestSessionId, UINT64 userSession
 			break;
 		}
 
-		test t;
+		SP::test t;
 		*recvBuffer >> t.id3;
 		recvBuffer->ReadBuffer((char*)t.teststring.GetCString(), sizeof(t.teststring));
 
@@ -175,7 +175,7 @@ ProcedureResult DBServer::HandleImpl(UINT64 requestSessionId, UINT64 userSession
 			break;
 		}
 
-		SELECT_TEST_2 s;
+		SP::SELECT_TEST_2 s;
 		*recvBuffer >> s.id;
 
 		if (connector.CallSPDirectWithSPObject(conn.value().stmtHandle, procedure, s) == false)
@@ -183,7 +183,7 @@ ProcedureResult DBServer::HandleImpl(UINT64 requestSessionId, UINT64 userSession
 			break;
 		}
 
-		auto results = connector.GetSPResult<SELECT_TEST_2::ResultType>(conn.value().stmtHandle);
+		auto results = connector.GetSPResult<SP::SELECT_TEST_2::ResultType>(conn.value().stmtHandle);
 		if (results == nullopt)
 		{
 			break;

@@ -121,7 +121,7 @@ public:
 	template<typename Procedure>
 	bool CallSPDirectWithSPObject(SQLHSTMT& stmtHandle, const ProcedureInfo* procedureInfo, const Procedure& procedure)
 	{
-		static_assert(std::is_base_of<IStoredProcedure, Procedure>::value, "Only use derived classes from IStoredProcedure");
+		static_assert(std::is_base_of<SP::IStoredProcedure, Procedure>::value, "Only use derived classes from IStoredProcedure");
 
 		if (procedureInfo == nullptr)
 		{

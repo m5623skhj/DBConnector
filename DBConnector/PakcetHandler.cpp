@@ -12,52 +12,44 @@ FORCEINLINE bool IsSuccess(const ProcedureResult& result)
 	return result.first;
 }
 
-void DBServer::InsertBatchJob(UINT64 userSessionId, unsigned char batchSize)
+void DBServer::InsertBatchJob(const DBJobStart& job)
 {
 	std::lock_guard lock(batchedDBJobMapLock);
-	batchedDBJobMap.insert({ userSessionId, make_shared<BatchedDBJob>(batchSize) });
+	batchedDBJobMap.insert({ job.jobKey, make_shared<BatchedDBJob>(job.batchSize, job.sessionId) });
 }
 
 void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf* recvBuffer)
 {
-	UINT64 userSessionId = 0;
-
-	*recvBuffer >> userSessionId;
+	DBJobKey key = INVALID_DB_JOB_KEY;
+	*recvBuffer >> key;
 
 	if (packetId == static_cast<UINT>(PACKET_ID::BATCHED_DB_JOB))
 	{
-		unsigned char batchSize = 0;
-		*recvBuffer >> batchSize;
-
-		InsertBatchJob(userSessionId, batchSize);
+		DBJobStart job;
+		job.jobKey = key;
+		*recvBuffer >> job.sessionId >> job.batchSize;
+		InsertBatchJob(job);
 	}
 	else
 	{
-		if (IsBatchJobWaitingUser(userSessionId) == true)
+		if (IsBatchJobWaitingJob(key) == true)
 		{
-			AddItemForJobStart(requestSessionId, userSessionId, packetId, recvBuffer);
+			AddItemForJobStart(requestSessionId, key, packetId, recvBuffer);
 		}
 		else
 		{
-			auto result = HandleImpl(requestSessionId, userSessionId, static_cast<PACKET_ID>(packetId), recvBuffer);
-			if (IsSuccess(result) == true)
-			{
-				SendPacket(requestSessionId, result.second);
-			}
-			else
-			{
-				CSerializationBuf::Free(result.second);
-			}
+			std::cout << "Receive invalid job. Request session id : " << requestSessionId 
+				<< " Packet id : " << packetId << std::endl;
 		}
 	}
 }
 
-void DBServer::AddItemForJobStart(UINT64 requestSessionId, UINT64 userSessionId, UINT packetId, CSerializationBuf* recvBuffer)
+void DBServer::AddItemForJobStart(UINT64 requestSessionId, DBJobKey jobKey, UINT packetId, CSerializationBuf* recvBuffer)
 {
 	std::shared_ptr<BatchedDBJob> batchedJob = nullptr;
 	{
 		std::lock_guard lock(batchedDBJobMapLock);
-		const auto& iter = batchedDBJobMap.find(userSessionId);
+		const auto& iter = batchedDBJobMap.find(jobKey);
 		if (iter == batchedDBJobMap.end())
 		{
 			return;
@@ -75,17 +67,17 @@ void DBServer::AddItemForJobStart(UINT64 requestSessionId, UINT64 userSessionId,
 	batchedJob->bufferList.push_back(std::make_pair(packetId, recvBuffer));
 	if (batchedJob->batchSize == batchedJob->bufferList.size())
 	{
-		DoBatchedJob(requestSessionId, userSessionId, batchedJob);
+		DoBatchedJob(requestSessionId, batchedJob);
 	}
 }
 
-void DBServer::DoBatchedJob(UINT64 requestSessionId, UINT64 userSessionId, std::shared_ptr<BatchedDBJob> batchedJob)
+void DBServer::DoBatchedJob(UINT64 requestSessionId, std::shared_ptr<BatchedDBJob> batchedJob)
 {
 	std::list<CSerializationBuf*> resultList;
 	bool isError = false;
 	for (auto& job : batchedJob->bufferList)
 	{
-		auto result = HandleImpl(requestSessionId, userSessionId, static_cast<PACKET_ID>(job.first), job.second);
+		auto result = HandleImpl(requestSessionId, batchedJob->sessionId, static_cast<PACKET_ID>(job.first), job.second);
 		CSerializationBuf::Free(job.second);
 
 		if (IsSuccess(result) == true)
@@ -124,10 +116,10 @@ void DBServer::DoBatchedJob(UINT64 requestSessionId, UINT64 userSessionId, std::
 	}
 }
 
-bool DBServer::IsBatchJobWaitingUser(UINT64 userSessionId)
+bool DBServer::IsBatchJobWaitingJob(DBJobKey jobKey)
 {
 	std::lock_guard lock(batchedDBJobMapLock);
-	const auto& iter = batchedDBJobMap.find(userSessionId);
+	const auto& iter = batchedDBJobMap.find(jobKey);
 	if (iter == batchedDBJobMap.end())
 	{
 		return false;

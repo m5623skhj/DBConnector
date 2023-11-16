@@ -6,15 +6,20 @@
 #include <list>
 #include <mutex>
 #include "../../RIOServerTest/RIO_Test/EnumType.h"
+#include "../../RIOServerTest/RIO_Test/DefineType.h"
+
+class DBJobStart;
 
 struct BatchedDBJob
 {
-	explicit BatchedDBJob(unsigned char size)
-		: batchSize(size)
+	explicit BatchedDBJob(unsigned char inBatchSize, SessionId inSessionId)
+		: batchSize(inBatchSize)
+		, sessionId(inSessionId)
 	{
 	}
 
 	unsigned char batchSize = 0;
+	SessionId sessionId = INVALID_SESSION_ID;
 	std::list<std::pair<UINT, CSerializationBuf*>> bufferList;
 	std::atomic_bool isRunning = false;
 };
@@ -44,18 +49,18 @@ protected:
 	virtual void OnError(st_Error* OutError);
 
 private:
-	void InsertBatchJob(UINT64 sessionId, unsigned char batchSize);
+	void InsertBatchJob(const DBJobStart& job);
 
 private:
 	void HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf* recvBuffer);
-	bool IsBatchJobWaitingUser(UINT64 userSessionId);
-	void AddItemForJobStart(UINT64 requestSessionId, UINT64 userSessionId, UINT packetId, CSerializationBuf* recvBuffer);
-	void DoBatchedJob(UINT64 requestSessionId, UINT64 userSessionId, std::shared_ptr<BatchedDBJob> batchedJob);
+	bool IsBatchJobWaitingJob(DBJobKey jobKey);
+	void AddItemForJobStart(UINT64 requestSessionId, DBJobKey jobKey, UINT packetId, CSerializationBuf* recvBuffer);
+	void DoBatchedJob(UINT64 requestSessionId, std::shared_ptr<BatchedDBJob> batchedJob);
 	ProcedureResult HandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer);
 
 #pragma region BatchedDBJob
 private:
 	std::mutex batchedDBJobMapLock;
-	std::map<UINT64, std::shared_ptr<BatchedDBJob>> batchedDBJobMap;
+	std::map<DBJobKey, std::shared_ptr<BatchedDBJob>> batchedDBJobMap;
 #pragma endregion BatchedDBJob
 };

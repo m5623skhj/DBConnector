@@ -12,10 +12,10 @@ FORCEINLINE bool IsSuccess(const ProcedureResult& result)
 	return result.first;
 }
 
-void DBServer::InsertBatchJob(const DBJobStart& job)
+void DBServer::InsertBatchJob(DBJobKey jobKey, const DBJobStart& job)
 {
 	std::lock_guard lock(batchedDBJobMapLock);
-	batchedDBJobMap.insert({ job.jobKey, make_shared<BatchedDBJob>(job.batchSize, job.sessionId) });
+	batchedDBJobMap.insert({ jobKey, make_shared<BatchedDBJob>(job.batchSize, job.sessionId) });
 }
 
 void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf* recvBuffer)
@@ -26,9 +26,8 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 	if (packetId == static_cast<UINT>(PACKET_ID::BATCHED_DB_JOB))
 	{
 		DBJobStart job;
-		job.jobKey = key;
 		*recvBuffer >> job.sessionId >> job.batchSize;
-		InsertBatchJob(job);
+		InsertBatchJob(key, job);
 	}
 	else
 	{

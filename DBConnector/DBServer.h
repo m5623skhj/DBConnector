@@ -49,7 +49,7 @@ protected:
 	virtual void OnError(st_Error* OutError);
 
 private:
-	void InsertBatchJob(const DBJobStart& job);
+	void InsertBatchJob(DBJobKey jobKey, const DBJobStart& job);
 
 private:
 	void HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf* recvBuffer);

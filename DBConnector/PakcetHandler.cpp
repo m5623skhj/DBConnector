@@ -107,8 +107,7 @@ void DBServer::DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::share
 		auto reverseIter = resultList.rbegin();
 		if (reverseIter == resultList.rend())
 		{
-			// First job was failed
-			// To do what?
+			SendPacket(requestSessionId, resultPacket);
 		}
 
 		++reverseIter;
@@ -117,8 +116,6 @@ void DBServer::DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::share
 			// TODO
 			// Rollback committed procedure
 		}
-
-		SendPacket(requestSessionId, resultPacket);
 	}
 }
 

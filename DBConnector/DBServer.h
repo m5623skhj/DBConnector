@@ -55,7 +55,7 @@ private:
 	void HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf* recvBuffer);
 	bool IsBatchJobWaitingJob(DBJobKey jobKey);
 	void AddItemForJobStart(UINT64 requestSessionId, DBJobKey jobKey, UINT packetId, CSerializationBuf* recvBuffer);
-	void DoBatchedJob(UINT64 requestSessionId, std::shared_ptr<BatchedDBJob> batchedJob);
+	void DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::shared_ptr<BatchedDBJob> batchedJob);
 	ProcedureResult HandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer);
 
 #pragma region BatchedDBJob

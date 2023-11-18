@@ -66,14 +66,14 @@ void DBServer::AddItemForJobStart(UINT64 requestSessionId, DBJobKey jobKey, UINT
 	batchedJob->bufferList.push_back(std::make_pair(packetId, recvBuffer));
 	if (batchedJob->batchSize == batchedJob->bufferList.size())
 	{
-		DoBatchedJob(requestSessionId, batchedJob);
+		DoBatchedJob(requestSessionId, jobKey, batchedJob);
 	}
 }
 
-void DBServer::DoBatchedJob(UINT64 requestSessionId, std::shared_ptr<BatchedDBJob> batchedJob)
+void DBServer::DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::shared_ptr<BatchedDBJob> batchedJob)
 {
 	std::list<CSerializationBuf*> resultList;
-	bool isError = false;
+	bool isSuccess = true;
 	for (auto& job : batchedJob->bufferList)
 	{
 		auto result = HandleImpl(requestSessionId, batchedJob->sessionId, static_cast<PACKET_ID>(job.first), job.second);
@@ -85,13 +85,18 @@ void DBServer::DoBatchedJob(UINT64 requestSessionId, std::shared_ptr<BatchedDBJo
 		}
 		else
 		{
-			isError = true;
+			isSuccess = false;
 			break;
 		}
 	}
 
-	if (isError == false)
+	CSerializationBuf* resultPacket = CSerializationBuf::Alloc();
+	*resultPacket << jobKey << isSuccess;
+
+	if (isSuccess == true)
 	{
+		SendPacket(requestSessionId, resultPacket);
+
 		for (auto& result : resultList)
 		{
 			SendPacket(requestSessionId, result);
@@ -112,6 +117,8 @@ void DBServer::DoBatchedJob(UINT64 requestSessionId, std::shared_ptr<BatchedDBJo
 			// TODO
 			// Rollback committed procedure
 		}
+
+		SendPacket(requestSessionId, resultPacket);
 	}
 }
 

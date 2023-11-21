@@ -112,7 +112,6 @@ void DBServer::DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::share
 		{
 			g_Dump.Crash();
 		}
-		SendPacket(requestSessionId, resultPacket);
 
 		for (auto& result : resultList)
 		{
@@ -125,8 +124,8 @@ void DBServer::DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::share
 		{
 			g_Dump.Crash();
 		}
-		SendPacket(requestSessionId, resultPacket);
 	}
+	SendPacket(requestSessionId, resultPacket);
 	SQLSetConnectAttr(conn.value().dbcHandle, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_ON, 0);
 	connector.FreeConnection(conn.value());
 }

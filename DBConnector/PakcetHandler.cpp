@@ -93,8 +93,25 @@ void DBServer::DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::share
 	CSerializationBuf* resultPacket = CSerializationBuf::Alloc();
 	*resultPacket << jobKey << isSuccess;
 
+	ODBCConnector& connector = ODBCConnector::GetInst();
+	auto conn = connector.GetConnection();
+	if (conn == nullopt)
+	{
+		g_Dump.Crash();
+	}
+
+	if (ODBCUtil::SQLIsSuccess(
+		SQLSetConnectAttr(conn.value().dbcHandle, SQL_ATTR_AUTOCOMMIT, SQL_AUTOCOMMIT_OFF, 0)) == false)
+	{
+		g_Dump.Crash();
+	}
+
 	if (isSuccess == true)
 	{
+		if (ODBCUtil::SQLIsSuccess(SQLEndTran(SQL_HANDLE_DBC, conn.value().dbcHandle, SQL_COMMIT)) == false)
+		{
+			g_Dump.Crash();
+		}
 		SendPacket(requestSessionId, resultPacket);
 
 		for (auto& result : resultList)
@@ -104,19 +121,14 @@ void DBServer::DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::share
 	}
 	else
 	{
-		auto reverseIter = resultList.rbegin();
-		if (reverseIter == resultList.rend())
+		if (ODBCUtil::SQLIsSuccess(SQLEndTran(SQL_HANDLE_DBC, conn.value().dbcHandle, SQL_ROLLBACK)) == false)
 		{
-			SendPacket(requestSessionId, resultPacket);
+			g_Dump.Crash();
 		}
-
-		++reverseIter;
-		for (; reverseIter != resultList.rend(); ++reverseIter)
-		{
-			// TODO
-			// Rollback committed procedure
-		}
+		SendPacket(requestSessionId, resultPacket);
 	}
+	SQLSetConnectAttr(conn.value().dbcHandle, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_ON, 0);
+	connector.FreeConnection(conn.value());
 }
 
 bool DBServer::IsBatchJobWaitingJob(DBJobKey jobKey)
@@ -137,6 +149,10 @@ ProcedureResult DBServer::HandleImpl(UINT64 requestSessionId, UINT64 userSession
 	bool isSuccess = false;
 	ODBCConnector& connector = ODBCConnector::GetInst();
 	auto conn = connector.GetConnection();
+	if (conn == nullopt)
+	{
+		g_Dump.Crash();
+	}
 
 	switch (packetId)
 	{

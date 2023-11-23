@@ -7,23 +7,18 @@
 
 using namespace std;
 
-FORCEINLINE bool IsSuccess(const ProcedureResult& result)
-{
-	return result.first;
-}
-
 void DBServer::InsertBatchJob(DBJobKey jobKey, const DBJobStart& job)
 {
 	std::lock_guard lock(batchedDBJobMapLock);
 	batchedDBJobMap.insert({ jobKey, make_shared<BatchedDBJob>(job.batchSize, job.sessionId) });
 }
 
-void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf* recvBuffer)
+void DBServer::HandlePacket(UINT64 requestSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer)
 {
 	DBJobKey key = INVALID_DB_JOB_KEY;
 	*recvBuffer >> key;
 
-	if (packetId == static_cast<UINT>(PACKET_ID::BATCHED_DB_JOB))
+	if (packetId == PACKET_ID::GAME2DB_BATCHED_DB_JOB)
 	{
 		DBJobStart job;
 		*recvBuffer >> job.sessionId >> job.batchSize;
@@ -31,6 +26,11 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 	}
 	else
 	{
+		if (key == 0)
+		{
+			ProcedureHandleImpl(requestSessionId, packetId, recvBuffer);
+		}
+
 		if (IsBatchJobWaitingJob(key) == true)
 		{
 			AddItemForJobStart(requestSessionId, key, packetId, recvBuffer);
@@ -38,12 +38,12 @@ void DBServer::HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializati
 		else
 		{
 			std::cout << "Receive invalid job. Request session id : " << requestSessionId 
-				<< " Packet id : " << packetId << std::endl;
+				<< " Packet id : " << static_cast<UINT>(packetId) << std::endl;
 		}
 	}
 }
 
-void DBServer::AddItemForJobStart(UINT64 requestSessionId, DBJobKey jobKey, UINT packetId, CSerializationBuf* recvBuffer)
+void DBServer::AddItemForJobStart(UINT64 requestSessionId, DBJobKey jobKey, PACKET_ID packetId, CSerializationBuf* recvBuffer)
 {
 	std::shared_ptr<BatchedDBJob> batchedJob = nullptr;
 	{
@@ -72,20 +72,14 @@ void DBServer::AddItemForJobStart(UINT64 requestSessionId, DBJobKey jobKey, UINT
 
 void DBServer::DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::shared_ptr<BatchedDBJob> batchedJob)
 {
-	std::list<CSerializationBuf*> resultList;
 	bool isSuccess = true;
 	for (auto& job : batchedJob->bufferList)
 	{
-		auto result = HandleImpl(requestSessionId, batchedJob->sessionId, static_cast<PACKET_ID>(job.first), job.second);
+		auto result = DBJobHandleImpl(requestSessionId, batchedJob->sessionId, static_cast<PACKET_ID>(job.first), job.second);
 		CSerializationBuf::Free(job.second);
 
-		if (IsSuccess(result) == true)
+		if (isSuccess == false)
 		{
-			resultList.push_back(result.second);
-		}
-		else
-		{
-			isSuccess = false;
 			break;
 		}
 	}
@@ -112,11 +106,6 @@ void DBServer::DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::share
 		{
 			g_Dump.Crash();
 		}
-
-		for (auto& result : resultList)
-		{
-			SendPacket(requestSessionId, result);
-		}
 	}
 	else
 	{
@@ -142,7 +131,7 @@ bool DBServer::IsBatchJobWaitingJob(DBJobKey jobKey)
 	return true;
 }
 
-ProcedureResult DBServer::HandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer)
+ProcedureResult DBServer::ProcedureHandleImpl(UINT64 requestSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer)
 {
 	CSerializationBuf* packet = CSerializationBuf::Alloc();
 	bool isSuccess = false;
@@ -155,7 +144,61 @@ ProcedureResult DBServer::HandleImpl(UINT64 requestSessionId, UINT64 userSession
 
 	switch (packetId)
 	{
-	case PACKET_ID::TEST:
+	case PACKET_ID::GAME2DB_SELECT_TEST_2:
+	{
+		auto procedure = connector.GetProcedureInfo("SELECT_TEST_2");
+		if (procedure == nullptr)
+		{
+			break;
+		}
+
+		CallSelectTest2ProcedurePacket item;
+		*recvBuffer >> item.ownerSessionId >> item.id;
+
+		SP::SELECT_TEST_2 s;
+		s.id = item.id;
+
+		if (connector.CallSPDirectWithSPObject(conn.value().stmtHandle, procedure, s) == false)
+		{
+			break;
+		}
+
+		auto results = connector.GetSPResult<SP::SELECT_TEST_2::ResultType>(conn.value().stmtHandle);
+		if (results == nullopt)
+		{
+			break;
+		}
+
+		UINT sendPackeId = static_cast<UINT>(PACKET_ID::DB2GAME_SELECT_TEST_2);
+		*packet << sendPackeId << item.ownerSessionId;
+
+		for (const auto& result : results.value())
+		{
+			*packet << result.no;
+			packet->WriteBuffer((char*)(result.tablename.GetCString()), sizeof(result.tablename));
+		}
+		isSuccess = true;
+		break;
+	}
+	}
+
+	connector.FreeConnection(conn.value());
+	return ProcedureResult(isSuccess, packet);
+}
+
+bool DBServer::DBJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer)
+{
+	bool isSuccess = false;
+	ODBCConnector& connector = ODBCConnector::GetInst();
+	auto conn = connector.GetConnection();
+	if (conn == nullopt)
+	{
+		g_Dump.Crash();
+	}
+
+	switch (packetId)
+	{
+	case PACKET_ID::GAME2DB_TEST:
 	{
 		auto procedure = connector.GetProcedureInfo("test");
 		if (procedure == nullptr)
@@ -172,50 +215,13 @@ ProcedureResult DBServer::HandleImpl(UINT64 requestSessionId, UINT64 userSession
 			break;
 		}
 
-		UINT sendPackeId = static_cast<UINT>(PACKET_ID::CALL_TEST_PROCEDURE_PACKET_REPLY);
-		*packet << sendPackeId << userSessionId;
-		isSuccess = true;
 		break;
 	}
-	case PACKET_ID::SELECT_TEST_2:
-	{
-		auto procedure = connector.GetProcedureInfo("SELECT_TEST_2");
-		if (procedure == nullptr)
-		{
-			break;
-		}
-
-		SP::SELECT_TEST_2 s;
-		*recvBuffer >> s.id;
-
-		if (connector.CallSPDirectWithSPObject(conn.value().stmtHandle, procedure, s) == false)
-		{
-			break;
-		}
-
-		auto results = connector.GetSPResult<SP::SELECT_TEST_2::ResultType>(conn.value().stmtHandle);
-		if (results == nullopt)
-		{
-			break;
-		}
-
-		UINT sendPackeId = static_cast<UINT>(PACKET_ID::CALL_SELECT_TEST_2_PROCEDURE_PACKET_REPLY);
-		*packet << sendPackeId << userSessionId;
-
-		for (const auto& result : results.value())
-		{
-			*packet << result.no;
-			packet->WriteBuffer((char*)(result.tablename.GetCString()), sizeof(result.tablename));
-		}
-		isSuccess = true;
-		break;
-	}
-
 	default:
 		cout << "Invalid packet id : " << static_cast<UINT>(packetId) << endl;
 		break;
 	}
 
 	connector.FreeConnection(conn.value());
-	return ProcedureResult(isSuccess, packet);
+	return isSuccess;
 }

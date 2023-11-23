@@ -20,7 +20,7 @@ struct BatchedDBJob
 
 	unsigned char batchSize = 0;
 	SessionId sessionId = INVALID_SESSION_ID;
-	std::list<std::pair<UINT, CSerializationBuf*>> bufferList;
+	std::list<std::pair<PACKET_ID, CSerializationBuf*>> bufferList;
 	std::atomic_bool isRunning = false;
 };
 
@@ -52,11 +52,12 @@ private:
 	void InsertBatchJob(DBJobKey jobKey, const DBJobStart& job);
 
 private:
-	void HandlePacket(UINT64 requestSessionId, UINT packetId, CSerializationBuf* recvBuffer);
+	void HandlePacket(UINT64 requestSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer);
 	bool IsBatchJobWaitingJob(DBJobKey jobKey);
-	void AddItemForJobStart(UINT64 requestSessionId, DBJobKey jobKey, UINT packetId, CSerializationBuf* recvBuffer);
+	void AddItemForJobStart(UINT64 requestSessionId, DBJobKey jobKey, PACKET_ID packetId, CSerializationBuf* recvBuffer);
 	void DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::shared_ptr<BatchedDBJob> batchedJob);
-	ProcedureResult HandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer);
+	ProcedureResult ProcedureHandleImpl(UINT64 requestSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer);
+	bool DBJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer);
 
 #pragma region BatchedDBJob
 private:

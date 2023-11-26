@@ -21,7 +21,7 @@ TEST(DBConnectorTest, DBInitializeTest)
 
 TEST(DBConnectorTest, ProcedureParameterTest)
 {
-	std::map<std::string, std::shared_ptr<IStoredProcedure>> testProcedureMap;
+	std::map<std::string, std::shared_ptr<SP::IStoredProcedure>> testProcedureMap;
 	std::map<std::string, std::vector<std::pair<std::string, ProcedureTypeName>>> resultPropertyMap;
 
 	PROCEDURE_TEST_LIST(testProcedureMap, resultPropertyMap);

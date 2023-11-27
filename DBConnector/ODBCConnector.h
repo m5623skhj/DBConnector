@@ -139,11 +139,11 @@ public:
 			SQLPOINTER inputPointer = ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst()
 				.GetPointerFromPointerTypeString(property, procedure.realPointerList[pointerPos]);
 
-			if (ODBCUtil::SQLIsSuccess(ODBCUtil::SQLIsSuccess(SQLBindParameter(
+			if (ODBCUtil::SQLIsSuccess(SQLBindParameter(
 				stmtHandle, paramLocation, SQL_PARAM_INPUT,
 				ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst().GetCType(property),
 				ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst().GetSQLType(property)
-				, 0, 0, inputPointer, 0, NULL))) == false)
+				, 0, 0, inputPointer, 0, NULL)) == false)
 			{
 				ODBCUtil::PrintSQLErrorMessage(stmtHandle);
 				return false;

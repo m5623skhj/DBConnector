@@ -73,19 +73,6 @@ void DBServer::AddItemForJobStart(UINT64 requestSessionId, DBJobKey jobKey, PACK
 void DBServer::DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::shared_ptr<BatchedDBJob> batchedJob)
 {
 	bool isSuccess = true;
-	for (auto& job : batchedJob->bufferList)
-	{
-		auto result = DBJobHandleImpl(requestSessionId, batchedJob->sessionId, static_cast<PACKET_ID>(job.first), job.second);
-		CSerializationBuf::Free(job.second);
-
-		if (isSuccess == false)
-		{
-			break;
-		}
-	}
-
-	CSerializationBuf* resultPacket = CSerializationBuf::Alloc();
-	*resultPacket << jobKey << isSuccess;
 
 	ODBCConnector& connector = ODBCConnector::GetInst();
 	auto conn = connector.GetConnection();
@@ -99,6 +86,20 @@ void DBServer::DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::share
 	{
 		g_Dump.Crash();
 	}
+
+	for (auto& job : batchedJob->bufferList)
+	{
+		auto result = DBJobHandleImpl(requestSessionId, batchedJob->sessionId, static_cast<PACKET_ID>(job.first), conn.value(), job.second);
+		CSerializationBuf::Free(job.second);
+
+		if (isSuccess == false)
+		{
+			break;
+		}
+	}
+
+	CSerializationBuf* resultPacket = CSerializationBuf::Alloc();
+	*resultPacket << jobKey << isSuccess;
 
 	if (isSuccess == true)
 	{
@@ -186,16 +187,11 @@ ProcedureResult DBServer::ProcedureHandleImpl(UINT64 requestSessionId, PACKET_ID
 	return ProcedureResult(isSuccess, packet);
 }
 
-bool DBServer::DBJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer)
+bool DBServer::DBJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PACKET_ID packetId, DBConnection& conn, CSerializationBuf* recvBuffer)
 {
 	bool isSuccess = false;
-	ODBCConnector& connector = ODBCConnector::GetInst();
-	auto conn = connector.GetConnection();
-	if (conn == nullopt)
-	{
-		g_Dump.Crash();
-	}
 
+	ODBCConnector& connector = ODBCConnector::GetInst();
 	switch (packetId)
 	{
 	case PACKET_ID::GAME2DB_TEST:
@@ -210,7 +206,7 @@ bool DBServer::DBJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PA
 		*recvBuffer >> t.id3;
 		recvBuffer->ReadBuffer((char*)t.teststring.GetCString(), sizeof(t.teststring));
 
-		if (connector.CallSPDirectWithSPObject(conn.value().stmtHandle, procedure, t) == false)
+		if (connector.CallSPDirectWithSPObject(conn.stmtHandle, procedure, t) == false)
 		{
 			break;
 		}
@@ -222,6 +218,6 @@ bool DBServer::DBJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PA
 		break;
 	}
 
-	connector.FreeConnection(conn.value());
+	connector.FreeConnection(conn);
 	return isSuccess;
 }

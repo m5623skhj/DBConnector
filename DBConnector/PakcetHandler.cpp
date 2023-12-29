@@ -218,6 +218,5 @@ bool DBServer::DBJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PA
 		break;
 	}
 
-	connector.FreeConnection(conn);
 	return isSuccess;
 }

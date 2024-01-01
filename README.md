@@ -29,6 +29,10 @@ BuildConfig.h의 UNIT_TEST를 0으로 수정하여 Google Test를 Off시킬 수 
 
 ![Start DBConnecotr   DBServer](https://github.com/m5623skhj/DBConnector/assets/42509418/0ccaa326-9aed-4a7d-9264-4299f637e7ce)
 
+DBServer와 DB, Client 간의 통신은 아래와 같습니다.
+
+![DBConnector_SequenceDiagram](https://github.com/m5623skhj/DBConnector/assets/42509418/fb67f9c1-c8ad-4ecd-9a4f-29d675cade49)
+
 ---
 
 2. 프로시저 등록 방법

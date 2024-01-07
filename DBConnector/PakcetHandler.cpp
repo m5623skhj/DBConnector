@@ -55,6 +55,7 @@ void DBServer::AddItemForJobStart(UINT64 requestSessionId, DBJobKey jobKey, PACK
 		}
 
 		batchedJob = iter->second;
+		batchedDBJobMap.erase(jobKey);
 	}
 
 	if (batchedJob == nullptr)

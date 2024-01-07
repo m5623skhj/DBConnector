@@ -31,7 +31,7 @@ BuildConfig.h의 UNIT_TEST를 0으로 수정하여 Google Test를 Off시킬 수 
 
 DBServer와 DB, Client 간의 통신은 아래와 같습니다.
 
-![DBConnector_SequenceDiagram](https://github.com/m5623skhj/DBConnector/assets/42509418/fb67f9c1-c8ad-4ecd-9a4f-29d675cade49)
+![DBConnector_SequenceDiagram](https://github.com/m5623skhj/DBConnector/assets/42509418/5312dd35-24fd-4778-87ee-acf13aa7b5b9)
 
 ---
 

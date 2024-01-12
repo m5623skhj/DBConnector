@@ -86,7 +86,7 @@ cs 파일이 생성되며, Migrator.csproj 파일에 해당 파일을 사용한�
 * BatchedDBJob
   * UPSERT 전용 SP 호출 구조체
   * 클라이언트에서 요청한 갯수 만큼의 SP를 트랜잭션으로 묶어서 호출
-  * 전체 COMMIT이 성공해야만 DB에 COMMIT 시키며, 하나를 실패하는 즉시, 같이 실행된 모든 SP를 롤백시킴
+  * 전체 COMMIT이 성공해야만 DB에 COMMIT 시키며, 하나를 실패하는 즉시, 같이 실행된 모든 SP를 ROLLBACK시킴
 
 ---
 

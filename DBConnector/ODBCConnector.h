@@ -72,7 +72,11 @@ public:
 			return false;
 		}
 
-		procedureInfo->SettingSPMaker(stmtHandle, SP_PARAMETER_LOCATION, args...);
+		if (procedureInfo->SettingSPMaker(stmtHandle, SP_PARAMETER_LOCATION, args...) == false)
+		{
+			return false;
+		}
+
 		if (ODBCUtil::DBSendQuery(procedureInfo->sql, stmtHandle) == false)
 		{
 			return false;
@@ -91,7 +95,11 @@ public:
 			return false;
 		}
 
-		procedureInfo->SettingSPMaker(stmtHandle, SP_PARAMETER_LOCATION, args...);
+		if (procedureInfo->SettingSPMaker(stmtHandle, SP_PARAMETER_LOCATION, args...) == false)
+		{
+			return false;
+		}
+
 		if (ODBCUtil::DBSendQueryDirect(procedureInfo->sql, stmtHandle) == false)
 		{
 			return false;
@@ -109,7 +117,11 @@ public:
 			return false;
 		}
 
-		procedureInfo->SettingSPMaker(stmtHandle, SP_PARAMETER_LOCATION, args...);
+		if (procedureInfo->SettingSPMaker(stmtHandle, SP_PARAMETER_LOCATION, args...) == false)
+		{
+			return false;
+		}
+
 		if (ODBCUtil::DBSendQueryDirect(procedureInfo->sql, stmtHandle) == false)
 		{
 			return false;

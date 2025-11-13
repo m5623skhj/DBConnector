@@ -9,11 +9,11 @@ using namespace std;
 
 void DBServer::InsertBatchJob(DBJobKey jobKey, const DBJobStart& job)
 {
-	std::lock_guard lock(batchedDBJobMapLock);
-	batchedDBJobMap.insert({ jobKey, make_shared<BatchedDBJob>(job.batchSize, job.sessionId) });
+	std::lock_guard lock(batchedDbJobMapLock);
+	batchedDbJobMap.insert({ jobKey, make_shared<BatchedDBJob>(job.batchSize, job.sessionId) });
 }
 
-void DBServer::HandlePacket(UINT64 requestSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer)
+void DBServer::HandlePacket(const UINT64 requestSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer)
 {
 	DBJobKey key = INVALID_DB_JOB_KEY;
 	*recvBuffer >> key;
@@ -38,24 +38,24 @@ void DBServer::HandlePacket(UINT64 requestSessionId, PACKET_ID packetId, CSerial
 		else
 		{
 			std::cout << "Receive invalid job. Request session id : " << requestSessionId 
-				<< " Packet id : " << static_cast<UINT>(packetId) << std::endl;
+				<< " Packet id : " << static_cast<UINT>(packetId) << '\n';
 		}
 	}
 }
 
-void DBServer::AddItemForJobStart(UINT64 requestSessionId, DBJobKey jobKey, PACKET_ID packetId, CSerializationBuf* recvBuffer)
+void DBServer::AddItemForJobStart(const UINT64 requestSessionId, const DBJobKey jobKey, PACKET_ID packetId, CSerializationBuf* recvBuffer)
 {
 	std::shared_ptr<BatchedDBJob> batchedJob = nullptr;
 	{
-		std::lock_guard lock(batchedDBJobMapLock);
-		const auto& iter = batchedDBJobMap.find(jobKey);
-		if (iter == batchedDBJobMap.end())
+		std::lock_guard lock(batchedDbJobMapLock);
+		const auto& itor = batchedDbJobMap.find(jobKey);
+		if (itor == batchedDbJobMap.end())
 		{
 			return;
 		}
 
-		batchedJob = iter->second;
-		batchedDBJobMap.erase(jobKey);
+		batchedJob = itor->second;
+		batchedDbJobMap.erase(jobKey);
 	}
 
 	if (batchedJob == nullptr)
@@ -64,14 +64,14 @@ void DBServer::AddItemForJobStart(UINT64 requestSessionId, DBJobKey jobKey, PACK
 	}
 
 	CSerializationBuf::AddRefCount(recvBuffer);
-	batchedJob->bufferList.push_back(std::make_pair(packetId, recvBuffer));
+	batchedJob->bufferList.emplace_back(std::make_pair(packetId, recvBuffer));
 	if (batchedJob->batchSize == batchedJob->bufferList.size())
 	{
 		DoBatchedJob(requestSessionId, jobKey, batchedJob);
 	}
 }
 
-void DBServer::DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::shared_ptr<BatchedDBJob> batchedJob)
+void DBServer::DoBatchedJob(const UINT64 requestSessionId, const DBJobKey jobKey, const std::shared_ptr<BatchedDBJob>& batchedJob)
 {
 	bool isSuccess = true;
 
@@ -83,15 +83,15 @@ void DBServer::DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::share
 	}
 
 	if (ODBCUtil::SQLIsSuccess(
-		SQLSetConnectAttr(conn.value().dbcHandle, SQL_ATTR_AUTOCOMMIT, SQL_AUTOCOMMIT_OFF, 0)) == false)
+		SQLSetConnectAttr(conn.value().dbcHandle, SQL_ATTR_AUTOCOMMIT, nullptr, 0)) == false)
 	{
 		g_Dump.Crash();
 	}
 
-	for (auto& job : batchedJob->bufferList)
+	for (const auto& [packetId, buffer] : batchedJob->bufferList)
 	{
-		auto result = DBJobHandleImpl(requestSessionId, batchedJob->sessionId, static_cast<PACKET_ID>(job.first), conn.value(), job.second);
-		CSerializationBuf::Free(job.second);
+		isSuccess = DbJobHandleImpl(requestSessionId, batchedJob->sessionId, packetId, conn.value(), buffer);
+		CSerializationBuf::Free(buffer);
 
 		if (isSuccess == false)
 		{
@@ -117,15 +117,14 @@ void DBServer::DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::share
 		}
 	}
 	SendPacket(requestSessionId, resultPacket);
-	SQLSetConnectAttr(conn.value().dbcHandle, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_ON, 0);
+	SQLSetConnectAttr(conn.value().dbcHandle, SQL_ATTR_AUTOCOMMIT, reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_ON), 0);
 	connector.FreeConnection(conn.value());
 }
 
-bool DBServer::IsBatchJobWaitingJob(DBJobKey jobKey)
+bool DBServer::IsBatchJobWaitingJob(const DBJobKey jobKey)
 {
-	std::lock_guard lock(batchedDBJobMapLock);
-	const auto& iter = batchedDBJobMap.find(jobKey);
-	if (iter == batchedDBJobMap.end())
+	std::lock_guard lock(batchedDbJobMapLock);
+	if (const auto& itor = batchedDbJobMap.find(jobKey); itor == batchedDbJobMap.end())
 	{
 		return false;
 	}
@@ -133,11 +132,12 @@ bool DBServer::IsBatchJobWaitingJob(DBJobKey jobKey)
 	return true;
 }
 
-ProcedureResult DBServer::ProcedureHandleImpl(UINT64 requestSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer)
+ProcedureResult DBServer::ProcedureHandleImpl(UINT64 requestSessionId, const PACKET_ID packetId, CSerializationBuf* recvBuffer)
 {
 	CSerializationBuf* packet = CSerializationBuf::Alloc();
 	bool isSuccess = false;
 	ODBCConnector& connector = ODBCConnector::GetInst();
+
 	auto conn = connector.GetConnection();
 	if (conn == nullopt)
 	{
@@ -165,19 +165,19 @@ ProcedureResult DBServer::ProcedureHandleImpl(UINT64 requestSessionId, PACKET_ID
 			break;
 		}
 
-		auto results = connector.GetSPResult<SP::SELECT_TEST_2::ResultType>(conn.value().stmtHandle);
+		const auto results = connector.GetSPResult<SP::SELECT_TEST_2::ResultType>(conn.value().stmtHandle);
 		if (results == nullopt)
 		{
 			break;
 		}
 
-		UINT sendPackeId = static_cast<UINT>(PACKET_ID::DB2GAME_SELECT_TEST_2);
-		*packet << sendPackeId << item.ownerSessionId;
+		constexpr UINT sendPacketId = static_cast<UINT>(PACKET_ID::DB2GAME_SELECT_TEST_2);
+		*packet << sendPacketId << item.ownerSessionId;
 
 		for (const auto& result : results.value())
 		{
 			*packet << result.no;
-			packet->WriteBuffer((char*)(result.tablename.GetCString()), sizeof(result.tablename));
+			packet->WriteBuffer(reinterpret_cast<char*>(const_cast<WCHAR*>(result.tablename.GetCString())), sizeof(result.tablename));
 		}
 		isSuccess = true;
 		break;
@@ -185,10 +185,10 @@ ProcedureResult DBServer::ProcedureHandleImpl(UINT64 requestSessionId, PACKET_ID
 	}
 
 	connector.FreeConnection(conn.value());
-	return ProcedureResult(isSuccess, packet);
+	return { isSuccess, packet };
 }
 
-bool DBServer::DBJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PACKET_ID packetId, DBConnection& conn, CSerializationBuf* recvBuffer)
+bool DBServer::DbJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PACKET_ID packetId, DBConnection& conn, CSerializationBuf* recvBuffer)
 {
 	bool isSuccess = false;
 
@@ -197,7 +197,7 @@ bool DBServer::DBJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PA
 	{
 	case PACKET_ID::GAME2DB_TEST:
 	{
-		auto procedure = connector.GetProcedureInfo("test");
+		const auto procedure = connector.GetProcedureInfo("test");
 		if (procedure == nullptr)
 		{
 			break;
@@ -205,17 +205,17 @@ bool DBServer::DBJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PA
 
 		SP::test t;
 		*recvBuffer >> t.id3;
-		recvBuffer->ReadBuffer((char*)t.teststring.GetCString(), sizeof(t.teststring));
+		recvBuffer->ReadBuffer(reinterpret_cast<char*>(const_cast<WCHAR*>(t.teststring.GetCString())), sizeof(t.teststring));
 
 		if (connector.CallSPDirectWithSPObject(conn.stmtHandle, procedure, t) == false)
 		{
 			break;
 		}
 
-		break;
+		isSuccess = true;
 	}
 	default:
-		cout << "Invalid packet id : " << static_cast<UINT>(packetId) << endl;
+		cout << "Invalid packet id : " << static_cast<UINT>(packetId) << '\n';
 		break;
 	}
 

@@ -1,9 +1,9 @@
 #pragma once
 #include <sqlext.h>
-#include "StoredProcedure.h"
 #include <string>
 #include "ODBCConst.h"
 #include <unordered_map>
+#include "Type.h"
 
 namespace ODBCUtil
 {

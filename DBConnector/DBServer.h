@@ -9,6 +9,7 @@
 #include "../../RIOServerTest/RIO_Test/DefineType.h"
 
 class DBJobStart;
+struct DBConnection;
 
 struct BatchedDBJob
 {
@@ -31,22 +32,22 @@ class DBServer : public CLanServer
 public:
 	DBServer() = delete;
 	explicit DBServer(const std::wstring& optionFile);
-	virtual ~DBServer();
+	~DBServer() override;
 
 public:
 	void StopServer();
 
 protected:
-	virtual void OnClientJoin(UINT64 OutClientID);
-	virtual void OnClientLeave(UINT64 ClientID);
-	virtual bool OnConnectionRequest();
+	void OnClientJoin(UINT64 OutClientID) override;
+	void OnClientLeave(UINT64 ClientID) override;
+	bool OnConnectionRequest() override;
 
-	virtual void OnRecv(UINT64 ReceivedSessionID, CSerializationBuf* OutReadBuf);
-	virtual void OnSend(UINT64 ClientID, int sendsize);
+	void OnRecv(UINT64 ReceivedSessionID, CSerializationBuf* OutReadBuf) override;
+	void OnSend(UINT64 ClientID, int sendsize) override;
 
-	virtual void OnWorkerThreadBegin();
-	virtual void OnWorkerThreadEnd();
-	virtual void OnError(st_Error* OutError);
+	void OnWorkerThreadBegin() override;
+	void OnWorkerThreadEnd() override;
+	void OnError(st_Error* OutError) override;
 
 private:
 	void InsertBatchJob(DBJobKey jobKey, const DBJobStart& job);
@@ -55,13 +56,13 @@ private:
 	void HandlePacket(UINT64 requestSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer);
 	bool IsBatchJobWaitingJob(DBJobKey jobKey);
 	void AddItemForJobStart(UINT64 requestSessionId, DBJobKey jobKey, PACKET_ID packetId, CSerializationBuf* recvBuffer);
-	void DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, std::shared_ptr<BatchedDBJob> batchedJob);
-	ProcedureResult ProcedureHandleImpl(UINT64 requestSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer);
-	bool DBJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PACKET_ID packetId, DBConnection& conn, CSerializationBuf* recvBuffer);
+	void DoBatchedJob(UINT64 requestSessionId, DBJobKey jobKey, const std::shared_ptr<BatchedDBJob>& batchedJob);
+	static ProcedureResult ProcedureHandleImpl(UINT64 requestSessionId, PACKET_ID packetId, CSerializationBuf* recvBuffer);
+	static bool DbJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PACKET_ID packetId, DBConnection& conn, CSerializationBuf* recvBuffer);
 
 #pragma region BatchedDBJob
 private:
-	std::mutex batchedDBJobMapLock;
-	std::map<DBJobKey, std::shared_ptr<BatchedDBJob>> batchedDBJobMap;
+	std::mutex batchedDbJobMapLock;
+	std::map<DBJobKey, std::shared_ptr<BatchedDBJob>> batchedDbJobMap;
 #pragma endregion BatchedDBJob
 };

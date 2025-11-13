@@ -8,6 +8,7 @@
 #include <list>
 #include <mutex>
 #include <optional>
+#include "StoredProcedure.h"
 
 struct ProcedureInfo;
 

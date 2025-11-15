@@ -82,8 +82,6 @@ namespace ODBCUtil
 		}
 
 		return false;
-
-		return false;
 	}
 
 	std::wstring GetDataTypeName(SQLSMALLINT inDataType)

@@ -12,9 +12,9 @@ class ODBCConnector;
 struct ColumnInfo
 {
 	ColumnInfo() = default;
-	ColumnInfo(SQLTCHAR* inName, SQLSMALLINT inType,
-		SQLINTEGER inDataType, SQLTCHAR* inDataTypeName, SQLULEN inColumnSize);
-	ColumnInfo(SQLTCHAR* inName, SQLSMALLINT inType,
+	ColumnInfo(const SQLTCHAR* inName, SQLSMALLINT inType,
+		SQLINTEGER inDataType, const SQLTCHAR* inDataTypeName, SQLULEN inColumnSize);
+	ColumnInfo(const SQLTCHAR* inName, SQLSMALLINT inType,
 		SQLINTEGER inDataType, std::wstring inDataTypeName, SQLULEN inColumnSize);
 
 	std::wstring name;
@@ -34,7 +34,7 @@ struct ProcedureInfo
 
 	std::wstring sql;
 
-	bool SettingDefaultSPMaker(SQLHSTMT stmtHandle);
+	bool SettingDefaultSPMaker(SQLHSTMT stmtHandle) const;
 
 	bool SettingSPMaker(SQLHSTMT stmtHandle) const
 	{
@@ -67,28 +67,28 @@ struct ProcedureInfo
 	}
 
 private:
-	std::shared_ptr<void> GetDefaultValue(short dataType);
+	static std::shared_ptr<void> GetDefaultValue(short dataType);
 };
 
 class ODBCMetaData
 {
 public:
-	explicit ODBCMetaData(const std::wstring& inCatalogName);
+	explicit ODBCMetaData(std::wstring inCatalogName);
 	~ODBCMetaData() = default;
 
 	ODBCMetaData(const ODBCMetaData&) = delete;
 	ODBCMetaData& operator=(const ODBCMetaData&) = delete;
 
 public:
-	bool GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* catalogName, WCHAR* schemaName, OUT std::set<ProcedureName>& procedureNameList);
+	static bool GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* catalogName, WCHAR* schemaName, OUT std::set<ProcedureName>& procedureNameList);
 	bool MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const std::set<ProcedureName>& procedureNameList);
 
 private:
-	bool MakeInputColumnToProcedureInfo(SQLHSTMT stmtHandle, const ProcedureName& procedureName, const WCHAR* procedureNameBuffer, OUT std::shared_ptr<ProcedureInfo> outProcdureInfo);
-	bool MakeOutputColumnToProcedureInfo(SQLHSTMT stmtHandle, const ProcedureName& procedureName, OUT std::shared_ptr<ProcedureInfo> procdureInfo);
+	static bool MakeInputColumnToProcedureInfo(SQLHSTMT stmtHandle, const ProcedureName& procedureName, const WCHAR* procedureNameBuffer, OUT const std::shared_ptr<ProcedureInfo>& outProcedureInfo);
+	static bool MakeOutputColumnToProcedureInfo(SQLHSTMT stmtHandle, const ProcedureName& procedureName, OUT const std::shared_ptr<ProcedureInfo>& procedureInfo);
 
 public:
-	const ProcedureInfo* const GetProcedureInfo(ProcedureName& procedureName) const;
+	const ProcedureInfo* GetProcedureInfo(const ProcedureName& procedureName) const;
 
 private:
 	std::wstring catalogName;

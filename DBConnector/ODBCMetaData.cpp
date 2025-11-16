@@ -7,19 +7,9 @@
 #include <sqlext.h>
 #include <cstring>
 
-ColumnInfo::ColumnInfo(SQLTCHAR* inName, SQLSMALLINT inType,
-	SQLINTEGER inDataType, SQLTCHAR* inDataTypeName, SQLULEN inColumnSize)
-	: name(reinterpret_cast<WCHAR*>(inName))
-	, columnType(inType)
-	, dataType(inDataType)
-	, dataTypeName(reinterpret_cast<WCHAR*>(inDataTypeName))
-	, columnSize(inColumnSize)
-{
-}
-
-ColumnInfo::ColumnInfo(SQLTCHAR* inName, SQLSMALLINT inType,
-	SQLINTEGER inDataType, std::wstring inDataTypeName, SQLULEN inColumnSize)
-	: name(reinterpret_cast<WCHAR*>(inName))
+ColumnInfo::ColumnInfo(const SQLTCHAR* inName, const SQLSMALLINT inType,
+	const SQLINTEGER inDataType, const SQLTCHAR* inDataTypeName, const SQLULEN inColumnSize)
+	: name(inName)
 	, columnType(inType)
 	, dataType(inDataType)
 	, dataTypeName(inDataTypeName)
@@ -27,7 +17,17 @@ ColumnInfo::ColumnInfo(SQLTCHAR* inName, SQLSMALLINT inType,
 {
 }
 
-bool ProcedureInfo::SettingDefaultSPMaker(SQLHSTMT stmtHandle)
+ColumnInfo::ColumnInfo(const SQLTCHAR* inName, const SQLSMALLINT inType,
+	const SQLINTEGER inDataType, std::wstring inDataTypeName, const SQLULEN inColumnSize)
+	: name(inName)
+	, columnType(inType)
+	, dataType(inDataType)
+	, dataTypeName(std::move(inDataTypeName))
+	, columnSize(inColumnSize)
+{
+}
+
+bool ProcedureInfo::SettingDefaultSPMaker(const SQLHSTMT stmtHandle) const
 {
 	int cnt = 1;
 	for (const auto& inputColumn : inputColumnInfoList)
@@ -38,7 +38,7 @@ bool ProcedureInfo::SettingDefaultSPMaker(SQLHSTMT stmtHandle)
 			return false;
 		}
 
-		if (ODBCUtil::SQLIsSuccess(SQLBindParameter(stmtHandle, cnt, SQL_PARAM_INPUT, SQL_C_LONG, inputColumn.dataType, 0, 0, (SQLPOINTER)(defaultColumn.get()), 0, NULL)) == false)
+		if (not ODBCUtil::SQLIsSuccess(SQLBindParameter(stmtHandle, cnt, SQL_PARAM_INPUT, SQL_C_LONG, inputColumn.dataType, 0, 0, defaultColumn.get(), 0, nullptr)))
 		{
 			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
 			return false;
@@ -50,7 +50,7 @@ bool ProcedureInfo::SettingDefaultSPMaker(SQLHSTMT stmtHandle)
 	return true;
 }
 
-std::shared_ptr<void> ProcedureInfo::GetDefaultValue(short dataType)
+std::shared_ptr<void> ProcedureInfo::GetDefaultValue(const short dataType)
 {
 	if (dataType == SQL_NUMERIC || dataType == SQL_DECIMAL || dataType == SQL_INTEGER)
 	{
@@ -80,20 +80,20 @@ std::shared_ptr<void> ProcedureInfo::GetDefaultValue(short dataType)
 	return nullptr;
 }
 
-ODBCMetaData::ODBCMetaData(const std::wstring& inCatalogName)
-	: catalogName(inCatalogName)
+ODBCMetaData::ODBCMetaData(std::wstring inCatalogName)
+	: catalogName(std::move(inCatalogName))
 {
 }
 
 bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* catalogName, WCHAR* schemaName, OUT std::set<ProcedureName>& procedureNameList)
 {
-	auto stmtHandle = connector.GetDefaultStmtHandle();
+	const auto stmtHandle = connector.GetDefaultStmtHandle();
 	if (stmtHandle == nullptr)
 	{
 		return false;
 	}
 
-	if (SQLProcedures(stmtHandle, (SQLWCHAR*)catalogName, static_cast<SQLSMALLINT>(wcslen(catalogName)), schemaName, wcslen(schemaName), NULL, NULL) != SQL_SUCCESS)
+	if (SQLProcedures(stmtHandle, catalogName, static_cast<SQLSMALLINT>(wcslen(catalogName)), schemaName, wcslen(schemaName), nullptr, NULL) != SQL_SUCCESS)
 	{
 		return false;
 	}
@@ -101,17 +101,17 @@ bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* catal
 	SQLCHAR procedureName[256];
 	ZeroMemory(procedureName, sizeof(procedureName));
 
-	SQLRETURN ret;
 	while (SQLFetch(stmtHandle) == SQL_SUCCESS)
 	{
-		ret = SQLGetData(stmtHandle, COLUMN_NUMBER::PROCEDURE_NAME, SQL_C_CHAR, procedureName, sizeof(procedureName), nullptr);
-		if (ODBCUtil::SQLIsSuccess(ret) == false)
+		const SQLRETURN ret = SQLGetData(stmtHandle, PROCEDURE_NAME, SQL_C_CHAR, procedureName,
+		                           sizeof(procedureName), nullptr);
+		if (not ODBCUtil::SQLIsSuccess(ret))
 		{
 			return false;
 		}
 
-		std::string procInfo = (const char*)procedureName;
-		auto pos = procInfo.find(';');
+		std::string procInfo = reinterpret_cast<const char*>(procedureName);
+		const auto pos = procInfo.find(';');
 		std::string procName = procInfo.substr(0, pos);
 
 		procedureNameList.insert(procName.c_str());
@@ -127,10 +127,10 @@ bool ODBCMetaData::MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const
 	auto stmtHandle = connector.GetDefaultStmtHandle();
 	// auto commit mode off
 	// SQLExecute()를 모두 롤백하기 위해서 설정
-	auto ret = SQLSetConnectAttr(connector.GetDefaultDBCHandle(), SQL_ATTR_AUTOCOMMIT, SQL_AUTOCOMMIT_OFF, 0);
-	if (ODBCUtil::SQLIsSuccess(ret) == false)
+	auto ret = SQLSetConnectAttr(connector.GetDefaultDBCHandle(), SQL_ATTR_AUTOCOMMIT, nullptr, 0);
+	if (not ODBCUtil::SQLIsSuccess(ret))
 	{
-		std::cout << "SQLSetConnectAttr failed : " << std::endl;
+		std::cout << "SQLSetConnectAttr failed : " << '\n';
 		ODBCUtil::PrintSQLErrorMessage(stmtHandle);
 		return false;
 	}
@@ -141,20 +141,20 @@ bool ODBCMetaData::MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const
 		WCHAR procedureNameBuffer[64];
 		ZeroMemory(procedureNameBuffer, sizeof(procedureNameBuffer));
 
-		if (UTF8ToUTF16(procedureName.c_str(), procedureNameBuffer, sizeof(procedureNameBuffer)) == false)
+		if (not UTF8ToUTF16(procedureName.c_str(), procedureNameBuffer, sizeof(procedureNameBuffer)))
 		{
 			return false;
 		}
 
-		if (MakeInputColumnToProcedureInfo(stmtHandle, procedureName, procedureNameBuffer, procedureInfo) == false)
+		if (not MakeInputColumnToProcedureInfo(stmtHandle, procedureName, procedureNameBuffer, procedureInfo))
 		{
 			return false;
 		}
 
-		ret = SQLPrepare(stmtHandle, (SQLWCHAR*)procedureInfo->sql.c_str(), SQL_NTS);
+		ret = SQLPrepare(stmtHandle, const_cast<SQLWCHAR*>(procedureInfo->sql.c_str()), SQL_NTS);
 		if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO)
 		{
-			std::cout << "SQLPrepare failed : " << procedureName << std::endl;
+			std::cout << "SQLPrepare failed : " << procedureName << '\n';
 			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
 			return false;
 		}
@@ -165,7 +165,7 @@ bool ODBCMetaData::MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const
 		ret = SQLExecute(stmtHandle);
 		if (ret != SQL_SUCCESS && ret != SQL_SUCCESS_WITH_INFO)
 		{
-			std::cout << "SQLExecute failed : " << procedureName << std::endl;
+			std::cout << "SQLExecute failed : " << procedureName << '\n';
 			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
 			return false;
 		}
@@ -182,10 +182,10 @@ bool ODBCMetaData::MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const
 	}
 
 	// auto commit mode on
-	ret = SQLSetConnectAttr(connector.GetDefaultDBCHandle(), SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_ON, 0);
-	if (ODBCUtil::SQLIsSuccess(ret) == false)
+	ret = SQLSetConnectAttr(connector.GetDefaultDBCHandle(), SQL_ATTR_AUTOCOMMIT, reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_ON), 0);
+	if (not ODBCUtil::SQLIsSuccess(ret))
 	{
-		std::cout << "SQLSetStmtAttr() failed" << std::endl;
+		std::cout << "SQLSetStmtAttr() failed" << '\n';
 		ODBCUtil::PrintSQLErrorMessage(stmtHandle);
 		return false;
 	}
@@ -193,10 +193,9 @@ bool ODBCMetaData::MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const
 	return true;
 }
 
-bool ODBCMetaData::MakeInputColumnToProcedureInfo(SQLHSTMT stmtHandle, const ProcedureName& procedureName, const WCHAR* procedureNameBuffer, OUT std::shared_ptr<ProcedureInfo> outProcdureInfo)
+bool ODBCMetaData::MakeInputColumnToProcedureInfo(const SQLHSTMT stmtHandle, const ProcedureName& procedureName, const WCHAR* procedureNameBuffer, OUT const std::shared_ptr<ProcedureInfo>& outProcedureInfo)
 {
-	auto ret = SQLProcedureColumns(stmtHandle, NULL, 0, NULL, 0, (SQLWCHAR*)procedureNameBuffer, SQL_NTS, NULL, 0);
-	if (ODBCUtil::SQLIsSuccess(ret) == false)
+	if (not ODBCUtil::SQLIsSuccess(SQLProcedureColumns(stmtHandle, nullptr, 0, nullptr, 0, const_cast<SQLWCHAR*>(procedureNameBuffer), SQL_NTS, nullptr, 0)))
 	{
 		return false;
 	}
@@ -209,7 +208,7 @@ bool ODBCMetaData::MakeInputColumnToProcedureInfo(SQLHSTMT stmtHandle, const Pro
 		SQLTCHAR dataTypeName[64];
 		SQLULEN columnSize = 0;
 
-		bool BindColumn(SQLHSTMT stmtHandle)
+		bool BindColumn(const SQLHSTMT stmtHandle)
 		{
 			if (SQLBindCol(stmtHandle, COLUMN_NUMBER::COLUMN_NAME, SQL_C_TCHAR, name, sizeof(name), nullptr) != SQL_SUCCESS)
 			{
@@ -238,19 +237,19 @@ bool ODBCMetaData::MakeInputColumnToProcedureInfo(SQLHSTMT stmtHandle, const Pro
 
 	InputColumnInfo columnInfo;
 	ZeroMemory(&columnInfo, sizeof(columnInfo));
-	if (columnInfo.BindColumn(stmtHandle) == false)
+	if (not columnInfo.BindColumn(stmtHandle))
 	{
 		return false;
 	}
 
-	outProcdureInfo->sql = L"{CALL ";
-	outProcdureInfo->sql += procedureNameBuffer;
-	outProcdureInfo->sql += L"(";
+	outProcedureInfo->sql = L"{CALL ";
+	outProcedureInfo->sql += procedureNameBuffer;
+	outProcedureInfo->sql += L"(";
 
 	bool isFirstParam = true;
 	while (true)
 	{
-		if (ODBCUtil::SQLIsSuccess(SQLFetch(stmtHandle)) == false)
+		if (not ODBCUtil::SQLIsSuccess(SQLFetch(stmtHandle)))
 		{
 			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
 			break;
@@ -264,29 +263,28 @@ bool ODBCMetaData::MakeInputColumnToProcedureInfo(SQLHSTMT stmtHandle, const Pro
 			}
 			else
 			{
-				outProcdureInfo->sql += L", ";
+				outProcedureInfo->sql += L", ";
 			}
 
-			outProcdureInfo->inputColumnInfoList.emplace_back(ColumnInfo(
-				columnInfo.name, columnInfo.columnType, columnInfo.dataType, columnInfo.dataTypeName, columnInfo.columnSize));
+			outProcedureInfo->inputColumnInfoList.emplace_back(
+				columnInfo.name, columnInfo.columnType, columnInfo.dataType, columnInfo.dataTypeName, columnInfo.columnSize);
 
-			outProcdureInfo->sql += L"?";
+			outProcedureInfo->sql += L"?";
 		}
 	}
-	outProcdureInfo->sql += L")}";
+	outProcedureInfo->sql += L")}";
 
 	SQLCloseCursor(stmtHandle);
 
 	return true;
 }
 
-bool ODBCMetaData::MakeOutputColumnToProcedureInfo(SQLHSTMT stmtHandle, const ProcedureName& procedureName, OUT std::shared_ptr<ProcedureInfo> procdureInfo)
+bool ODBCMetaData::MakeOutputColumnToProcedureInfo(SQLHSTMT stmtHandle, const ProcedureName& procedureName, OUT const std::shared_ptr<ProcedureInfo>& procedureInfo)
 {
 	SQLSMALLINT columnCount = 0;
-	SQLRETURN ret = SQLNumResultCols(stmtHandle, &columnCount);
-	if (ODBCUtil::SQLIsSuccess(ret) == false)
+	if (not ODBCUtil::SQLIsSuccess(SQLNumResultCols(stmtHandle, &columnCount)))
 	{
-		std::cout << "SQLNumResultCols failed : " << procedureName << std::endl;
+		std::cout << "SQLNumResultCols failed : " << procedureName << '\n';
 		ODBCUtil::PrintSQLErrorMessage(stmtHandle);
 		return false;
 	}
@@ -313,22 +311,22 @@ bool ODBCMetaData::MakeOutputColumnToProcedureInfo(SQLHSTMT stmtHandle, const Pr
 			, &resultColumn.decimalDigits
 			, &resultColumn.nullable)) == false)
 		{
-			std::cout << "SQLDescribeCol failed : " << procedureName << ", " << i << std::endl;
+			std::cout << "SQLDescribeCol failed : " << procedureName << ", " << i << '\n';
 			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
 			return false;
 		}
 
-		procdureInfo->resultColumnInfoList.emplace_back(ColumnInfo(
-			resultColumn.name, resultColumn.dataType, resultColumn.dataType, ODBCUtil::GetDataTypeName(resultColumn.dataType), resultColumn.columnSize));
+		procedureInfo->resultColumnInfoList.emplace_back(
+			resultColumn.name, resultColumn.dataType, resultColumn.dataType, ODBCUtil::GetDataTypeName(resultColumn.dataType), resultColumn.columnSize);
 	}
 	SQLCloseCursor(stmtHandle);
 
 	return true;
 }
 
-const ProcedureInfo* const ODBCMetaData::GetProcedureInfo(ProcedureName& procedureName) const
+const ProcedureInfo* ODBCMetaData::GetProcedureInfo(const ProcedureName& procedureName) const
 {
-	auto it = procedureInfoMap.find(procedureName);
+	const auto it = procedureInfoMap.find(procedureName);
 	if (it == procedureInfoMap.end())
 	{
 		return nullptr;

@@ -111,6 +111,11 @@ public:
         return thisString;
     }
 
+    void Resize(const unsigned short size)
+    {
+		thisString.resize(size);
+    }
+
 private:
     std::wstring thisString = L"";
 };

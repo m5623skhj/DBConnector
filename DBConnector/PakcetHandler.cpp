@@ -205,7 +205,7 @@ bool DBServer::DbJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PA
 
 		SP::test t;
 		*recvBuffer >> t.id3;
-		t.teststring.resize(recvBuffer->GetUseSize());
+		t.teststring.Resize(recvBuffer->GetUseSize());
 		recvBuffer->ReadBuffer(reinterpret_cast<char*>(const_cast<WCHAR*>(t.teststring.GetCString())), recvBuffer->GetUseSize());
 
 		if (connector.CallSPDirectWithSPObject(conn.stmtHandle, procedure, t) == false)

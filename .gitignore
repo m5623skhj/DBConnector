@@ -3,3 +3,6 @@ DBConnector/googletest-main/
 DBConnector/x64/
 packages/
 x64/
+DBConnector/gtest.dll
+DBConnector/gtest.lib
+DBConnector/libmysql.lib

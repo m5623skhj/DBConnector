@@ -93,7 +93,7 @@ bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* catal
 		return false;
 	}
 
-	if (SQLProcedures(stmtHandle, catalogName, static_cast<SQLSMALLINT>(wcslen(catalogName)), schemaName, wcslen(schemaName), nullptr, NULL) != SQL_SUCCESS)
+	if (SQLProcedures(stmtHandle, catalogName, static_cast<SQLSMALLINT>(wcslen(catalogName)), schemaName, static_cast<int>(wcslen(schemaName)), nullptr, NULL) != SQL_SUCCESS)
 	{
 		return false;
 	}

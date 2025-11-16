@@ -1,6 +1,5 @@
 #include "PreCompile.h"
 
-#include "TypeInfo.h"
 #include "Property.h"
 
 #include <utility>
@@ -8,12 +7,9 @@
 void TypeInfo::AddProperty(const Property& inProperty)
 {
 	std::string propertyName(inProperty.GetName());
-	if (propertyMap.empty() == false)
+	if (propertyMap.contains(propertyName))
 	{
-		if (propertyMap.find(propertyName) != propertyMap.end())
-		{
-			return;
-		}
+		return;
 	}
 
 	propertyMap.emplace(propertyName, inProperty);
@@ -22,9 +18,9 @@ void TypeInfo::AddProperty(const Property& inProperty)
 
 void TypeInfo::GetAllProperties(OUT std::vector<std::pair<PropertyName, PropertyTypeName>>& propertyList) const
 {
-	for (const auto& it : propertyMap)
+	for (const auto& [propertyName, propertyTypeName] : propertyMap)
 	{
-		propertyList.emplace_back(std::make_pair(it.first, it.second.GetTypeName()));
+		propertyList.emplace_back(propertyName, propertyTypeName.GetTypeName());
 	}
 }
 
@@ -33,7 +29,7 @@ std::vector<PropertyTypeName> TypeInfo::GetAllPropertyTypeName() const
 	return propertyTypeNameList;
 }
 
-size_t TypeInfo::GetNumOfProperty()
+size_t TypeInfo::GetNumOfProperty() const
 {
 	return propertyMap.size();
 }

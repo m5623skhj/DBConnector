@@ -1,5 +1,5 @@
 #pragma once
-#include "TypeInfo.h"
+#include "Property.h"
 
 #define DEFINE_CLASS_INFO(TypeName)\
 private:\

@@ -1,11 +1,9 @@
 #pragma once
 #include "BuildConfg.h"
-#include "Reflection.h"
-#include <map>
-#include <typeinfo>
-#include <typeindex>
 #include "Type.h"
 #include "ProcedureType.h"
+#include "PropertyMacro.h"
+#include "TypeInfoMacro.h"
 
 #define INPUT_REAL_POINTER(InputValue)\
 {\

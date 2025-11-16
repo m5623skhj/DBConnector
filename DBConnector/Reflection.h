@@ -1,9 +1,5 @@
 #pragma once
 
-#include "PropertyMacro.h"
-#include "TypeInfoMacro.h"
-#include "TypeInfo.h"
-
 // https://www.slideshare.net/xtozero/c20-251161090
 
 template<typename To, typename From>
@@ -14,7 +10,7 @@ To* Cast(From* source)
 		return nullptr;
 	}
 
-	if (source->GetTypeInfo().IsChildOf<To>() == false)
+	if (source->GetTypeInfo().template IsChildOf<To>() == false)
 	{
 		return nullptr;
 	}

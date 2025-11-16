@@ -122,9 +122,6 @@
     <ClInclude Include="TypeInfoMacro.h">
       <Filter>소스 파일\Reflection</Filter>
     </ClInclude>
-    <ClInclude Include="TypeInfo.h">
-      <Filter>소스 파일\Reflection</Filter>
-    </ClInclude>
     <ClInclude Include="BuildConfg.h">
       <Filter>소스 파일\BuildConfig</Filter>
     </ClInclude>

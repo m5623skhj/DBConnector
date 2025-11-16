@@ -201,7 +201,6 @@
     <ClInclude Include="Reflection.h" />
     <ClInclude Include="StoredProcedure.h" />
     <ClInclude Include="Type.h" />
-    <ClInclude Include="TypeInfo.h" />
     <ClInclude Include="TypeInfoMacro.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -3,6 +3,7 @@
 
 #include "GoogleTest.h"
 #include "Reflection.h"
+#include "TypeInfoMacro.h"
 
 #if UNIT_TEST
 struct Base
@@ -29,28 +30,28 @@ TEST(ReflectionTest, HasSuperTest)
 
 TEST(ReflectionTest, GetSuperTest)
 {
-	Derived1 derived;
-	auto super = derived.GetTypeInfo().GetSuper();
+	constexpr Derived1 derived;
+	const auto super = derived.GetTypeInfo().GetSuper();
 	EXPECT_NE(super, nullptr);
 
-	Base base;
-	auto willBeNull = base.GetTypeInfo().GetSuper();
+	constexpr Base base;
+	const auto willBeNull = base.GetTypeInfo().GetSuper();
 	EXPECT_EQ(willBeNull, nullptr);
 }
 
 TEST(ReflectionTest, CastTest)
 {
-	Derived1 derived1;
-	auto super1 = derived1.GetTypeInfo().GetSuper();
+	constexpr Derived1 derived1;
+	const auto super1 = derived1.GetTypeInfo().GetSuper();
 	ASSERT_NE(super1, nullptr);
 
 	Derived2 derived2;
 	Base* basePtr = &derived2;
-	auto willBeNull1 = Cast<Derived1>(basePtr);
+	const auto willBeNull1 = Cast<Derived1>(basePtr);
 	EXPECT_EQ(willBeNull1, nullptr);
 
-	Base base;
-	auto willBeNull2 = base.GetTypeInfo().GetSuper();
+	constexpr Base base;
+	const auto willBeNull2 = base.GetTypeInfo().GetSuper();
 	EXPECT_EQ(willBeNull2, nullptr);
 }
 #endif

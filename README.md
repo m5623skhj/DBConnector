@@ -56,7 +56,55 @@ sequenceDiagram
 
 DBServer와 DB, Client 간의 통신은 아래와 같습니다.
 
-![DBConnector_SequenceDiagram](https://github.com/m5623skhj/DBConnector/assets/42509418/5312dd35-24fd-4778-87ee-acf13aa7b5b9)
+```mermaid
+sequenceDiagram
+    title DBServer
+
+    Client ->> DBServer : Connect
+
+    alt Batched SP request
+        Client ->> DBServer : Send batched SP list
+        DBServer ->> DB : Start transaction
+
+        loop Batched SP size
+            DBServer ->> DBServer : Find requested SP
+            alt Can't find requested procedure info
+                DBServer ->> DBServer : Break loop
+            end
+
+            DBServer ->> DB : Call SP
+            DB -->> DBServer : Return SP result
+
+            alt Return SP result is failed
+                DBServer ->> DBServer : Break loop
+            end
+        end
+
+        DBServer ->> DB : End transaction with commit or rollback
+        
+        DBServer ->> Client : Send batched SP result
+
+        loop Batched SP size
+            alt Result code is success
+                Client ->> Client : Call DBJob.OnCommit()
+            else Result code is failed
+                Client ->> Client : Call DBJob.OnRollback()
+            end
+        end
+        
+    else Single SP request
+        Client ->> DBServer : Call SP
+        DBServer ->> DBServer : Find requested SP
+
+        alt Can't find requested procedure info
+            DBServer ->> Client : Send error
+        end
+
+        DBServer ->> DB : Call SP
+        DB -->> DBServer : Return SP result
+        DBServer -->> Client : Send SP result
+    end
+```
 
 ---
 

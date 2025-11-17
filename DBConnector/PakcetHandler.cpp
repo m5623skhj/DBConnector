@@ -45,27 +45,34 @@ void DBServer::HandlePacket(const UINT64 requestSessionId, PACKET_ID packetId, C
 
 void DBServer::AddItemForJobStart(const UINT64 requestSessionId, const DBJobKey jobKey, PACKET_ID packetId, CSerializationBuf* recvBuffer)
 {
+	bool shouldExecute = false;
 	std::shared_ptr<BatchedDBJob> batchedJob = nullptr;
 	{
 		std::lock_guard lock(batchedDbJobMapLock);
-		const auto& itor = batchedDbJobMap.find(jobKey);
+		const auto itor = batchedDbJobMap.find(jobKey);
 		if (itor == batchedDbJobMap.end())
 		{
 			return;
 		}
 
 		batchedJob = itor->second;
-		batchedDbJobMap.erase(jobKey);
+		if (batchedJob == nullptr)
+		{
+			std::cout << "Batched job is nullptr with job key : " << jobKey << '\n';
+			return;
+		}
+
+		CSerializationBuf::AddRefCount(recvBuffer);
+		batchedJob->bufferList.emplace_back(packetId, recvBuffer);
+
+		if (batchedJob->batchSize == batchedJob->bufferList.size())
+		{
+			shouldExecute = true;
+			batchedDbJobMap.erase(jobKey);
+		}
 	}
 
-	if (batchedJob == nullptr)
-	{
-		return;
-	}
-
-	CSerializationBuf::AddRefCount(recvBuffer);
-	batchedJob->bufferList.emplace_back(std::make_pair(packetId, recvBuffer));
-	if (batchedJob->batchSize == batchedJob->bufferList.size())
+	if (shouldExecute == true)
 	{
 		DoBatchedJob(requestSessionId, jobKey, batchedJob);
 	}
@@ -147,7 +154,7 @@ ProcedureResult DBServer::ProcedureHandleImpl(UINT64 requestSessionId, const PAC
 	{
 	case PACKET_ID::GAME2DB_SELECT_TEST_2:
 	{
-		auto procedure = connector.GetProcedureInfo("SELECT_TEST_2");
+		const auto procedure = connector.GetProcedureInfo("SELECT_TEST_2");
 		if (procedure == nullptr)
 		{
 			break;

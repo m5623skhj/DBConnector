@@ -8,24 +8,24 @@ public:
     FString()
     {
         thisString.reserve(SQL_STRING_LENGTH);
-    };
+    }
 
-    FString(const char* inString)
+    explicit FString(const char* inString)
     {
         thisString.assign(inString);
     }
 
-    FString(std::string inString)
+    explicit FString(const std::string& inString)
     {
         thisString.assign(inString);
     }
 
-    void operator=(std::string inString)
+    void operator=(const std::string& inString)
     {
         thisString.assign(inString);
     }
 
-    FString& operator+=(std::string inString)
+    FString& operator+=(const std::string& inString)
     {
         thisString += inString;
         return *this;
@@ -36,7 +36,8 @@ public:
         return thisString == inCompareString;
     }
 
-    const char* GetCString() const
+	[[nodiscard]]
+	const char* GetCString() const
     {
         return thisString.c_str();
     }
@@ -47,13 +48,14 @@ public:
         return stream;
     }
 
-    const std::string& GetOriginString() const
+    [[nodiscard]]
+	const std::string& GetOriginString() const
     {
         return thisString;
     }
 
 private:
-    std::string thisString = "";
+    std::string thisString;
 };
 
 class FWString
@@ -62,14 +64,14 @@ public:
     FWString()
     {
         thisString.reserve(SQL_STRING_LENGTH);
-    };
+    }
 
-    FWString(const WCHAR* inString)
+    explicit FWString(const WCHAR* inString)
     {
         thisString.assign(inString);
     }
 
-    FWString(std::wstring inString)
+    explicit FWString(const std::wstring& inString)
     {
         thisString.assign(inString);
     }
@@ -79,12 +81,12 @@ public:
         thisString.assign(inString);
     }
 
-    void operator=(std::wstring inString)
+    void operator=(const std::wstring& inString)
     {
         thisString.assign(inString);
     }
 
-    FWString& operator+=(std::wstring inString)
+    FWString& operator+=(const std::wstring& inString)
     {
         thisString += inString;
         return *this;
@@ -95,6 +97,7 @@ public:
         return thisString == inCompareString;
     }
 
+    [[nodiscard]]
     const WCHAR* GetCString() const
     {
         return thisString.c_str();
@@ -106,6 +109,7 @@ public:
         return stream;
     }
 
+    [[nodiscard]]
     const std::wstring& GetOriginString() const
     {
         return thisString;
@@ -117,7 +121,7 @@ public:
     }
 
 private:
-    std::wstring thisString = L"";
+    std::wstring thisString;
 };
 
 using ProcedureName = std::string;

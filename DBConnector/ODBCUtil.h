@@ -108,7 +108,7 @@ namespace ODBCUtil
 		template<typename T>
 		SQLLEN GetBufferSize(const T&)
 		{
-			return GetBufferSize<T>::GetBufferSize();
+			return GetBufferSize<T>();
 		}
 
 		template<typename T>
@@ -116,19 +116,19 @@ namespace ODBCUtil
 		{
 			if constexpr (std::is_pointer_v<T>)
 			{
-				return (SQLPOINTER)input;
+				return static_cast<SQLPOINTER>(input);
 			}
 			else if constexpr (std::is_same_v<T, std::wstring> || std::is_same_v<T, FWString>)
 			{
-				return (SQLPOINTER)input.c_str();
+				return static_cast<SQLPOINTER>(input.c_str());
 			}
 			else if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, FString>)
 			{
-				return (SQLPOINTER)input.c_str();
+				return static_cast<SQLPOINTER>(input.c_str());
 			}
 			else
 			{
-				return (SQLPOINTER)&input;
+				return static_cast<SQLPOINTER>(&input);
 			}
 		}
 
@@ -144,7 +144,7 @@ namespace ODBCUtil
 				return SQL_STRING_LENGTH;
 			}
 
-			return (SQLULEN)sizeof(T);
+			return sizeof(T);
 		}
 
 		class SQLTypeGetterFromString
@@ -206,38 +206,38 @@ namespace ODBCUtil
 		public:
 			SQLSMALLINT GetCType(const std::string& typeString)
 			{
-				auto findIter = cTypeMap.find(typeString);
-				if (findIter == cTypeMap.end())
+				const auto findItor = cTypeMap.find(typeString);
+				if (findItor == cTypeMap.end())
 				{
 					return 0;
 				}
 
-				return findIter->second;
+				return findItor->second;
 			}
 
 			SQLSMALLINT GetSQLType(const std::string& typeString)
 			{
-				auto findIter = sqlTypeMap.find(typeString);
-				if (findIter == sqlTypeMap.end())
+				const auto findItor = sqlTypeMap.find(typeString);
+				if (findItor == sqlTypeMap.end())
 				{
 					return 0;
 				}
 
-				return findIter->second;
+				return findItor->second;
 			}
 
 			SQLLEN GetBufferSize(const std::string& typeString)
 			{
-				auto findIter = columnSizeMap.find(typeString);
-				if (findIter == columnSizeMap.end())
+				const auto findItor = columnSizeMap.find(typeString);
+				if (findItor == columnSizeMap.end())
 				{
 					return 0;
 				}
 
-				return findIter->second;
+				return findItor->second;
 			}
 
-			SQLPOINTER GetPointerFromPointerTypeString(const std::string& typeString, const void* input)
+			static SQLPOINTER GetPointerFromPointerTypeString(const std::string& typeString, const void* input)
 			{
 				if (typeString == "FWString")
 				{
@@ -258,21 +258,28 @@ namespace ODBCUtil
 		};
 	}
 
-	void PrintSQLErrorMessage(SQLHSTMT stmtHandle);
-	bool SQLIsSuccess(SQLRETURN returnValue);
+	void PrintSQLErrorMessage(const SQLHSTMT stmtHandle);
+	bool SQLIsSuccess(const SQLRETURN returnValue);
 	bool IsSameType(const std::string& lhs, const std::string& rhs);
 
-	std::wstring GetDataTypeName(SQLSMALLINT inDataType);
+	std::wstring GetDataTypeName(const SQLSMALLINT inDataType);
 
 	template <typename T>
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, SQLSMALLINT cTypeData, SQLSMALLINT sqlTypeData, const T& input)
+	bool SettingSPMaker(const SQLHSTMT stmtHandle, const int parameterLocation, SQLSMALLINT cTypeData, SQLSMALLINT sqlTypeData, const T& input)
 	{
-		SQLPOINTER inputPointer = TypeTrait::GetPointerFromT(input);
-
-		if (ODBCUtil::SQLIsSuccess(SQLBindParameter(stmtHandle, parameterLocation, SQL_PARAM_INPUT, TypeTrait::GetCType(input), TypeTrait::GetSQLType(input)
-			, 0, 0, inputPointer, 0, NULL)) == false)
+		if (const SQLPOINTER inputPointer = TypeTrait::GetPointerFromT(input); ODBCUtil::SQLIsSuccess(SQLBindParameter(
+			stmtHandle
+			, parameterLocation
+			, SQL_PARAM_INPUT
+			, TypeTrait::GetCType(input)
+			, TypeTrait::GetSQLType(input)
+			, 0
+			, 0
+			, inputPointer
+			, 0
+			, nullptr)) == false)
 		{
-			ODBCUtil::PrintSQLErrorMessage(stmtHandle);
+			PrintSQLErrorMessage(stmtHandle);
 			return false;
 		}
 

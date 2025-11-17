@@ -36,7 +36,7 @@ struct ProcedureInfo
 
 	bool SettingDefaultSPMaker(SQLHSTMT stmtHandle) const;
 
-	bool SettingSPMaker(SQLHSTMT stmtHandle) const
+	static bool SettingSPMaker(SQLHSTMT stmtHandle)
 	{
 		return true;
 	}
@@ -44,7 +44,7 @@ struct ProcedureInfo
 	template <typename T>
 	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const T& input) const
 	{
-		int index = parameterLocation - 1;
+		const size_t index = parameterLocation - 1;
 		if (inputColumnInfoList.size() < index)
 		{
 			return false;
@@ -80,8 +80,8 @@ public:
 	ODBCMetaData& operator=(const ODBCMetaData&) = delete;
 
 public:
-	static bool GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* catalogName, WCHAR* schemaName, OUT std::set<ProcedureName>& procedureNameList);
-	bool MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const std::set<ProcedureName>& procedureNameList);
+	bool GetProcedureNameFromDB(const ODBCConnector& connector, WCHAR* catalogName, WCHAR* schemaName, OUT std::set<ProcedureName>& procedureNameList);
+	bool MakeProcedureColumnInfoFromDB(const ODBCConnector& connector, const std::set<ProcedureName>& procedureNameList);
 
 private:
 	static bool MakeInputColumnToProcedureInfo(SQLHSTMT stmtHandle, const ProcedureName& procedureName, const WCHAR* procedureNameBuffer, OUT const std::shared_ptr<ProcedureInfo>& outProcedureInfo);

@@ -32,7 +32,7 @@ bool ProcedureInfo::SettingDefaultSPMaker(const SQLHSTMT stmtHandle) const
 	int cnt = 1;
 	for (const auto& inputColumn : inputColumnInfoList)
 	{
-		auto defaultColumn = GetDefaultValue(inputColumn.dataType);
+		auto defaultColumn = GetDefaultValue(static_cast<short>(inputColumn.dataType));
 		if (defaultColumn == nullptr)
 		{
 			return false;
@@ -85,7 +85,7 @@ ODBCMetaData::ODBCMetaData(std::wstring inCatalogName)
 {
 }
 
-bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* catalogName, WCHAR* schemaName, OUT std::set<ProcedureName>& procedureNameList)
+bool ODBCMetaData::GetProcedureNameFromDB(const ODBCConnector& connector, WCHAR* catalogName, WCHAR* schemaName, OUT std::set<ProcedureName>& procedureNameList)
 {
 	const auto stmtHandle = connector.GetDefaultStmtHandle();
 	if (stmtHandle == nullptr)
@@ -93,7 +93,7 @@ bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* catal
 		return false;
 	}
 
-	if (SQLProcedures(stmtHandle, catalogName, static_cast<SQLSMALLINT>(wcslen(catalogName)), schemaName, static_cast<int>(wcslen(schemaName)), nullptr, NULL) != SQL_SUCCESS)
+	if (SQLProcedures(stmtHandle, catalogName, static_cast<SQLSMALLINT>(wcslen(catalogName)), schemaName, static_cast<SQLSMALLINT>(wcslen(schemaName)), nullptr, NULL) != SQL_SUCCESS)
 	{
 		return false;
 	}
@@ -122,9 +122,9 @@ bool ODBCMetaData::GetProcedureNameFromDB(ODBCConnector& connector, WCHAR* catal
 	return true;
 }
 
-bool ODBCMetaData::MakeProcedureColumnInfoFromDB(ODBCConnector& connector, const std::set<ProcedureName>& procedureNameList)
+bool ODBCMetaData::MakeProcedureColumnInfoFromDB(const ODBCConnector& connector, const std::set<ProcedureName>& procedureNameList)
 {
-	auto stmtHandle = connector.GetDefaultStmtHandle();
+	const auto stmtHandle = connector.GetDefaultStmtHandle();
 	// auto commit mode off
 	// SQLExecute()를 모두 롤백하기 위해서 설정
 	auto ret = SQLSetConnectAttr(connector.GetDefaultDBCHandle(), SQL_ATTR_AUTOCOMMIT, nullptr, 0);
@@ -210,23 +210,23 @@ bool ODBCMetaData::MakeInputColumnToProcedureInfo(const SQLHSTMT stmtHandle, con
 
 		bool BindColumn(const SQLHSTMT stmtHandle)
 		{
-			if (SQLBindCol(stmtHandle, COLUMN_NUMBER::COLUMN_NAME, SQL_C_TCHAR, name, sizeof(name), nullptr) != SQL_SUCCESS)
+			if (SQLBindCol(stmtHandle, COLUMN_NAME, SQL_C_TCHAR, name, sizeof(name), nullptr) != SQL_SUCCESS)
 			{
 				return false;
 			}
-			if (SQLBindCol(stmtHandle, COLUMN_NUMBER::COLUMN_TYPE, SQL_C_SHORT, &columnType, sizeof(columnType), nullptr) != SQL_SUCCESS)
+			if (SQLBindCol(stmtHandle, COLUMN_TYPE, SQL_C_SHORT, &columnType, sizeof(columnType), nullptr) != SQL_SUCCESS)
 			{
 				return false;
 			}
-			if (SQLBindCol(stmtHandle, COLUMN_NUMBER::DATA_TYPE, SQL_INTEGER, &dataType, sizeof(dataType), nullptr) != SQL_SUCCESS)
+			if (SQLBindCol(stmtHandle, DATA_TYPE, SQL_INTEGER, &dataType, sizeof(dataType), nullptr) != SQL_SUCCESS)
 			{
 				return false;
 			}
-			if (SQLBindCol(stmtHandle, COLUMN_NUMBER::DATA_TYPE_NAME, SQL_C_TCHAR, dataTypeName, sizeof(dataTypeName), nullptr) != SQL_SUCCESS)
+			if (SQLBindCol(stmtHandle, DATA_TYPE_NAME, SQL_C_TCHAR, dataTypeName, sizeof(dataTypeName), nullptr) != SQL_SUCCESS)
 			{
 				return false;
 			}
-			if (SQLBindCol(stmtHandle, COLUMN_NUMBER::COLUMN_SIZE, SQL_C_LONG, &columnSize, sizeof(columnSize), nullptr) != SQL_SUCCESS)
+			if (SQLBindCol(stmtHandle, COLUMN_SIZE, SQL_C_LONG, &columnSize, sizeof(columnSize), nullptr) != SQL_SUCCESS)
 			{
 				return false;
 			}

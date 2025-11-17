@@ -1,4 +1,5 @@
 #pragma once
+#include "DBServer.h"
 
 namespace DBServerProtocol
 {

@@ -6,22 +6,23 @@
 
 namespace ODBCUtil
 {
-	void PrintSQLErrorMessage(SQLHSTMT stmtHandle)
+	void PrintSQLErrorMessage(const SQLHSTMT stmtHandle)
 	{
-		SQLWCHAR SqlState[6];
-		SQLWCHAR Msg[SQL_MAX_MESSAGE_LENGTH];
-		SQLINTEGER NativeError;
-		SQLSMALLINT MsgLen;
-		SQLRETURN rc;
+		SQLWCHAR sqlState[6];
+		SQLWCHAR msg[SQL_MAX_MESSAGE_LENGTH];
+		SQLINTEGER nativeError;
+		SQLSMALLINT msgLen;
 
-		rc = SQLGetDiagRec(SQL_HANDLE_STMT, stmtHandle, 1, SqlState, &NativeError, Msg, sizeof(Msg), &MsgLen);
-		std::wstring errorMessage = Msg;
-		if (SQL_SUCCEEDED(rc)) {
+		const SQLRETURN rc = SQLGetDiagRec(SQL_HANDLE_STMT, stmtHandle, 1, sqlState, &nativeError, msg, sizeof(msg), &msgLen);
+		const std::wstring errorMessage = msg;
+
+		if (SQL_SUCCEEDED(rc)) 
+		{
 			std::wcout << L"SQL error message : " << errorMessage << std::endl;
 		}
 	}
 
-	bool SQLIsSuccess(SQLRETURN returnValue)
+	bool SQLIsSuccess(const SQLRETURN returnValue)
 	{
 		if (returnValue == SQL_SUCCESS || returnValue == SQL_SUCCESS_WITH_INFO)
 		{
@@ -84,7 +85,7 @@ namespace ODBCUtil
 		return false;
 	}
 
-	std::wstring GetDataTypeName(SQLSMALLINT inDataType)
+	std::wstring GetDataTypeName(const SQLSMALLINT inDataType)
 	{
 		switch (inDataType)
 		{

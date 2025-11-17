@@ -27,7 +27,32 @@ BuildConfig.h의 UNIT_TEST를 0으로 수정하여 Google Test를 Off시킬 수 
 
 현재 프로젝트를 그대로 실행시킬 시, 시작 흐름은 아래와 같은 순서로 진행됩니다.
 
-![Start DBConnecotr   DBServer](https://github.com/m5623skhj/DBConnector/assets/42509418/0ccaa326-9aed-4a7d-9264-4299f637e7ce)
+```mermaid
+sequenceDiagram
+    title DBServer program init
+
+    User ->> MigratorFileGenerator : Generate CS file for migration
+    User ->> DBServer : Start program
+    DBServer ->> DB : Try DB migration
+    DB -->> DBServer : Finish migration
+    DBServer ->> GoogleTest : Start SP parameter check
+    GoogleTest ->> DB : Request all SP info
+    DB -->> GoogleTest : Response all SP info
+    GoogleTest ->> GoogleTest : Start unit test for check SP parameter
+    GoogleTest -->> DBServer : Return SP parameter check result
+
+    opt SP parameter check failed
+        DBServer -->> User : Print unmatched parameter SP
+        DBServer ->> DBServer : Program exit
+    end
+
+    DBServer ->> DB : Connect to DB with connection pool
+    DB -->> DBServer : Connect complete
+
+    loop Input stop order
+        DBServer ->> DBServer : Waiting Client packet
+    end
+```
 
 DBServer와 DB, Client 간의 통신은 아래와 같습니다.
 

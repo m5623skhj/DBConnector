@@ -108,16 +108,14 @@ sequenceDiagram
 
 모든 프로시저는 StoredProcedure.h에서 IStoredProcedure를 상속 받아서 정의합니다.
 
-각 프로시저 클래스 내부에 DEFINE_CLASS_INFO()로 해당 패킷 클래스를 정의하고, 
-
+각 프로시저 클래스 내부에 DEFINE_CLASS_INFO()로 해당 패킷 클래스를 정의하고,  
 REGISTER_PROPERTY()로 모든 파라미터들을 등록합니다.
 
 생성자에서 모든 프로시저 파라미터들을 INPUT_REAL_POINTER()의 인자로 호출해줘야 정상적으로 프로시저에 값이 대입됩니다.
 
 Google Test를 사용하기 위해서는, INPUT_TEST_PROCEDURE_MAP()에 해당 프로시저를 등록해줘야 합니다.
 
-프로시저의 결과를 얻어오지 않는 경우, 	using ResultType = DB_IgnoreType만 선언해주면 되며,
-
+프로시저의 결과를 얻어오지 않는 경우, 	using ResultType = DB_IgnoreType만 선언해주면 되며,  
 결과가 있을 경우, ProcedureType.h에서 IResultType를 상속하여 정의합니다.
 
 IResultType 상속 클래스도 INPUT_TEST_PROCEDURE_MAP()를 제외하고 IStoredProcedure와 같게 정의해주시면 됩니다.
@@ -128,13 +126,12 @@ IResultType 상속 클래스도 INPUT_TEST_PROCEDURE_MAP()를 제외하고 IStor
 
 [FluentMigrator](https://fluentmigrator.github.io/)를 이용하여 DB 마이그레이션을 진행합니다.
 
-마이그레이션 파일을 만드는 방법은, [DBMigration 폴더](https://github.com/m5623skhj/DBMigrator/tree/main/Migrator/DBMigration)에 sql 파일을 정의한 후, MakeCSFile.py를 실행하면 
-
+마이그레이션 파일을 만드는 방법은, [DBMigration 폴더](https://github.com/m5623skhj/DBMigrator/tree/main/Migrator/DBMigration)에 sql 파일을 정의한 후, MakeCSFile.py를 실행하면  
 cs 파일이 생성되며, Migrator.csproj 파일에 해당 파일을 사용한다는 변경 사항이 추가됩니다.
 
 이후 Migrator.exe를 직접 실행하거나, 이 프로젝트를 실행하여, 마이그레이션을 진행합니다.
 
-프로젝트 실행으로 마이그레이션을 실행한다면, [Path.h](https://github.com/m5623skhj/DBConnector/blob/master/DBConnector/Path.h)의 경로를 확인해주세요.
+현재 프로젝트 실행으로 마이그레이션을 실행한다면, [Path.h](https://github.com/m5623skhj/DBConnector/blob/master/DBConnector/Path.h)의 경로를 확인해주세요.
 
 ---
 

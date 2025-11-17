@@ -47,9 +47,10 @@ private:
 class ODBCConnector
 {
 private:
-	ODBCConnector();
-	~ODBCConnector();
+	ODBCConnector() = default;
+	~ODBCConnector() = default;
 
+public:
 	ODBCConnector(const ODBCConnector&) = delete;
 	ODBCConnector& operator=(const ODBCConnector&) = delete;
 
@@ -69,7 +70,7 @@ public:
 		auto procedureInfo = GetProcedureInfo(procedureName);
 		if (procedureInfo == nullptr)
 		{
-			std::cout << "ProcedureInfo is nullptr" << std::endl;
+			std::cout << "ProcedureInfo is nullptr" << '\n';
 			return false;
 		}
 
@@ -92,7 +93,7 @@ public:
 		auto procedureInfo = GetProcedureInfo(procedureName);
 		if (procedureInfo == nullptr)
 		{
-			std::cout << "ProcedureInfo is nullptr" << std::endl;
+			std::cout << "ProcedureInfo is nullptr" << '\n';
 			return false;
 		}
 
@@ -114,7 +115,7 @@ public:
 	{
 		if (procedureInfo == nullptr)
 		{
-			std::cout << "ProcedureInfo is nullptr" << std::endl;
+			std::cout << "ProcedureInfo is nullptr" << '\n';
 			return false;
 		}
 
@@ -134,11 +135,11 @@ public:
 	template<typename Procedure>
 	bool CallSPDirectWithSPObject(SQLHSTMT& stmtHandle, const ProcedureInfo* procedureInfo, const Procedure& procedure)
 	{
-		static_assert(std::is_base_of<SP::IStoredProcedure, Procedure>::value, "Only use derived classes from IStoredProcedure");
+		static_assert(std::is_base_of_v<SP::IStoredProcedure, Procedure>, "Only use derived classes from IStoredProcedure");
 
 		if (procedureInfo == nullptr)
 		{
-			std::cout << "ProcedureInfo is nullptr" << std::endl;
+			std::cout << "ProcedureInfo is nullptr" << '\n';
 			return false;
 		}
 
@@ -156,7 +157,7 @@ public:
 				stmtHandle, paramLocation, SQL_PARAM_INPUT,
 				ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst().GetCType(property),
 				ODBCUtil::TypeTrait::SQLTypeGetterFromString::GetInst().GetSQLType(property)
-				, 0, 0, inputPointer, 0, NULL)) == false)
+				, 0, 0, inputPointer, 0, nullptr)) == false)
 			{
 				ODBCUtil::PrintSQLErrorMessage(stmtHandle);
 				return false;
@@ -178,7 +179,7 @@ public:
 	template<typename QueryResult>
 	std::optional<std::vector<QueryResult>> GetSPResult(SQLHSTMT& stmtHandle)
 	{
-		static_assert(std::is_base_of<IResultType, QueryResult>::value, "Only use derived classes from IStoredProcedure");
+		static_assert(std::is_base_of_v<IResultType, QueryResult>, "Only use derived classes from IStoredProcedure");
 
 		auto propertyList = QueryResult::StaticTypeInfo().GetAllPropertyTypeName();
 
@@ -214,15 +215,15 @@ public:
 
 private:
 	bool MakeProcedureFromDB();
-	bool MakeProcedureMetaData();
+	static bool MakeProcedureMetaData();
 
 private:
 	bool OptionParsing(const std::wstring& optionFileName);
-	const std::wstring GetDBConnectionString();
+	std::wstring GetDBConnectionString() const;
 
 public:
-	SQLHSTMT GetDefaultStmtHandle();
-	SQLHDBC GetDefaultDBCHandle();
+	SQLHSTMT GetDefaultStmtHandle() const;
+	SQLHDBC GetDefaultDBCHandle() const;
 	std::optional<DBConnection> GetConnection();
 	void FreeConnection(DBConnection& connection);
 
@@ -231,7 +232,7 @@ private:
 	DBConnection defaultConnection;
 
 public:
-	const ProcedureInfo * const GetProcedureInfo(ProcedureName procedureName) const;
+	const ProcedureInfo* GetProcedureInfo(const ProcedureName& procedureName) const;
 
 private:
 	std::unique_ptr<ODBCMetaData> metaData;

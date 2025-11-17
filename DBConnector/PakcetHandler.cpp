@@ -90,13 +90,12 @@ void DBServer::DoBatchedJob(const UINT64 requestSessionId, const DBJobKey jobKey
 
 	for (const auto& [packetId, buffer] : batchedJob->bufferList)
 	{
-		isSuccess = DbJobHandleImpl(requestSessionId, batchedJob->sessionId, packetId, conn.value(), buffer);
-		CSerializationBuf::Free(buffer);
-
-		if (isSuccess == false)
+		if (isSuccess == true)
 		{
-			break;
+			isSuccess = DbJobHandleImpl(requestSessionId, batchedJob->sessionId, packetId, conn.value(), buffer);
 		}
+
+		CSerializationBuf::Free(buffer);
 	}
 
 	CSerializationBuf* resultPacket = CSerializationBuf::Alloc();

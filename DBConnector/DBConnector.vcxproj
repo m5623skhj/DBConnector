@@ -185,7 +185,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\RIOServerTest\RIO_Test\EnumType.h" />
     <ClInclude Include="..\..\RIOServerTest\RIO_Test\Protocol.h" />
-    <ClInclude Include="BuildConfg.h" />
+    <ClInclude Include="BuildConfig.h" />
     <ClInclude Include="DBServer.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
     </ClInclude>

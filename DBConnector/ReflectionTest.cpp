@@ -1,5 +1,5 @@
 #include "PreCompile.h"
-#include "BuildConfg.h"
+#include "BuildConfig.h"
 
 #include "GoogleTest.h"
 #include "Reflection.h"

@@ -1,5 +1,5 @@
 #pragma once
-#include "BuildConfg.h"
+#include "BuildConfig.h"
 #include "Type.h"
 #include "ProcedureType.h"
 #include "PropertyMacro.h"

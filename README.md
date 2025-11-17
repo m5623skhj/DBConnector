@@ -68,7 +68,7 @@ sequenceDiagram
 
         loop Batched SP size
             DBServer ->> DBServer : Find requested SP
-            alt Can't find requested procedure info
+            alt Can't find requested SP info
                 DBServer ->> DBServer : Break loop
             end
 
@@ -96,7 +96,7 @@ sequenceDiagram
         Client ->> DBServer : Call SP
         DBServer ->> DBServer : Find requested SP
 
-        alt Can't find requested procedure info
+        alt Can't find requested SP info
             DBServer ->> Client : Send error
         end
 

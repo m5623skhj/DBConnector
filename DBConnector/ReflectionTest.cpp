@@ -1,7 +1,8 @@
+#include <gtest/gtest.h>
+
 #include "PreCompile.h"
 #include "BuildConfig.h"
 
-#include "GoogleTest.h"
 #include "Reflection.h"
 #include "TypeInfoMacro.h"
 

@@ -9,9 +9,9 @@ DBServer::DBServer(const std::wstring& optionFile)
 		g_Dump.Crash();
 	}
 	
-	std::cout << "---------------------" << std::endl;
-	std::cout << "DBServer On" << std::endl;
-	std::cout << "---------------------" << std::endl;
+	std::cout << "---------------------" << '\n';
+	std::cout << "DBServer On" << '\n';
+	std::cout << "---------------------" << '\n';
 }
 
 DBServer::~DBServer()
@@ -24,12 +24,12 @@ void DBServer::StopServer()
 	Stop();
 }
 
-void DBServer::OnClientJoin(UINT64 OutClientID)
+void DBServer::OnClientJoin(UINT64 clientId)
 {
 
 }
 
-void DBServer::OnClientLeave(UINT64 ClientID)
+void DBServer::OnClientLeave(UINT64 clientId)
 {
 
 }
@@ -39,15 +39,15 @@ bool DBServer::OnConnectionRequest()
 	return true;
 }
 
-void DBServer::OnRecv(UINT64 ReceivedSessionID, CSerializationBuf* OutReadBuf)
+void DBServer::OnRecv(const UINT64 receivedSessionId, CSerializationBuf* outReadBuf)
 {
 	UINT packetId = 0;
-	*OutReadBuf >> packetId;
+	*outReadBuf >> packetId;
 
-	HandlePacket(ReceivedSessionID, static_cast<PACKET_ID>(packetId), OutReadBuf);
+	HandlePacket(receivedSessionId, static_cast<PACKET_ID>(packetId), outReadBuf);
 }
 
-void DBServer::OnSend(UINT64 ClientID, int sendsize)
+void DBServer::OnSend(UINT64 clientId, int sendSize)
 {
 
 }
@@ -62,7 +62,7 @@ void DBServer::OnWorkerThreadEnd()
 
 }
 
-void DBServer::OnError(st_Error* OutError)
+void DBServer::OnError(st_Error* outError)
 {
 
 }

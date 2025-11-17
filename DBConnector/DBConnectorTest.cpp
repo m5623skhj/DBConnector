@@ -7,6 +7,7 @@
 #include "ODBCUtil.h"
 #include <utility>
 #include <vector>
+#include <gtest/gtest.h>
 
 #if UNIT_TEST
 TEST(DBConnectorTest, DBInitializeTest)
@@ -24,7 +25,7 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 	std::map<std::string, std::shared_ptr<SP::IStoredProcedure>> testProcedureMap;
 	std::map<std::string, std::vector<std::pair<std::string, ProcedureTypeName>>> resultPropertyMap;
 
-	PROCEDURE_TEST_LIST(testProcedureMap, resultPropertyMap);
+	PROCEDURE_TEST_LIST(testProcedureMap, resultPropertyMap)
 
 	ODBCConnector& connector = ODBCConnector::GetInst();
 
@@ -69,20 +70,20 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 		ASSERT_NE(matchedProcedureResultColumnInfo, resultPropertyMap.end());
 
 		std::vector<std::pair<std::string, ProcedureTypeName>> dbInputProperties;
-		char UTF8_name[256], UTF8_dataTypeName[256];
-		for (const auto& inputColmun : matchedProcedureInfo->inputColumnInfoList)
+		char utf8Name[256], utf8DataTypeName[256];
+		for (const auto& inputColumn : matchedProcedureInfo->inputColumnInfoList)
 		{
-			UTF16ToUTF8(inputColmun.name.c_str(), UTF8_name);
-			UTF16ToUTF8(inputColmun.dataTypeName.c_str(), UTF8_dataTypeName);
-			dbInputProperties.emplace_back(std::make_pair(UTF8_name, UTF8_dataTypeName));
+			UTF16ToUTF8(inputColumn.name.c_str(), utf8Name);
+			UTF16ToUTF8(inputColumn.dataTypeName.c_str(), utf8DataTypeName);
+			dbInputProperties.emplace_back(utf8Name, utf8DataTypeName);
 		}
 		
 		std::vector<std::pair<std::string, ProcedureTypeName>> dbResultProperties;
-		for (const auto& resultColmun : matchedProcedureInfo->resultColumnInfoList)
+		for (const auto& resultColumn : matchedProcedureInfo->resultColumnInfoList)
 		{
-			UTF16ToUTF8(resultColmun.name.c_str(), UTF8_name);
-			UTF16ToUTF8(resultColmun.dataTypeName.c_str(), UTF8_dataTypeName);
-			dbResultProperties.emplace_back(std::make_pair(UTF8_name, UTF8_dataTypeName));
+			UTF16ToUTF8(resultColumn.name.c_str(), utf8Name);
+			UTF16ToUTF8(resultColumn.dataTypeName.c_str(), utf8DataTypeName);
+			dbResultProperties.emplace_back(utf8Name, utf8DataTypeName);
 		}
 
 		bool isMatched = true;
@@ -95,15 +96,15 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 		EXPECT_TRUE(isMatched);
 	}
 
-	if (notMatchedProcedureList.size() > 0u)
+	if (!notMatchedProcedureList.empty())
 	{
-		std::cout << std::endl;
-		std::cout << "---------------------------------------" << std::endl;
+		std::cout << '\n';
+		std::cout << "---------------------------------------" << '\n';
 		for (const auto& notMatchedProcedure : notMatchedProcedureList)
 		{
-			std::cout << "Procedure was not matched. ProcedureName[" << notMatchedProcedure << "]" << std::endl;
+			std::cout << "Procedure was not matched. ProcedureName[" << notMatchedProcedure << "]" << '\n';
 		}
-		std::cout << "---------------------------------------" << std::endl << std::endl << std::endl;
+		std::cout << "---------------------------------------" << '\n' << '\n' << '\n';
 	}
 	connector.DisconnectDB();
 }

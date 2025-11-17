@@ -13,7 +13,7 @@ struct DBConnection;
 
 struct BatchedDBJob
 {
-	explicit BatchedDBJob(unsigned char inBatchSize, SessionId inSessionId)
+	explicit BatchedDBJob(const unsigned char inBatchSize, const SessionId inSessionId)
 		: batchSize(inBatchSize)
 		, sessionId(inSessionId)
 	{
@@ -27,7 +27,7 @@ struct BatchedDBJob
 
 using ProcedureResult = std::pair<bool, CSerializationBuf*>;
 
-class DBServer : public CLanServer
+class DBServer final : public CLanServer
 {
 public:
 	DBServer() = delete;
@@ -38,16 +38,16 @@ public:
 	void StopServer();
 
 protected:
-	void OnClientJoin(UINT64 OutClientID) override;
-	void OnClientLeave(UINT64 ClientID) override;
+	void OnClientJoin(UINT64 clientId) override;
+	void OnClientLeave(UINT64 clientId) override;
 	bool OnConnectionRequest() override;
 
-	void OnRecv(UINT64 ReceivedSessionID, CSerializationBuf* OutReadBuf) override;
-	void OnSend(UINT64 ClientID, int sendsize) override;
+	void OnRecv(UINT64 receivedSessionId, CSerializationBuf* outReadBuf) override;
+	void OnSend(UINT64 clientId, int sendSize) override;
 
 	void OnWorkerThreadBegin() override;
 	void OnWorkerThreadEnd() override;
-	void OnError(st_Error* OutError) override;
+	void OnError(st_Error* outError) override;
 
 private:
 	void InsertBatchJob(DBJobKey jobKey, const DBJobStart& job);

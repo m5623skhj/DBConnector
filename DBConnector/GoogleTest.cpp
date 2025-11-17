@@ -1,6 +1,7 @@
 #include "PreCompile.h"
 
 #include "GoogleTest.h"
+#include <gtest/gtest.h>
 
 namespace GTestHelper
 {

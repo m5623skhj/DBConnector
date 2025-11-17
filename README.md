@@ -11,20 +11,16 @@
 
 1. 개요
 
-ODBC를 사용한 MSSQL용 DBConnector 입니다.
-
+ODBC를 사용한 MSSQL용 DBConnector 입니다.  
 써 놓기는 MSSQL용이지만, 조금씩만 변경하면 MySQL에서도 사용 가능하며, 그 외에는 테스트를 진행해보지 못했습니다.
 
-이전에 제작했던 DBConnector의 경우, DBSendQuery()를 사용하여 실제 쿼리문을 프로그램 내에서 제작하여 DB에 송신하는 방법으로 사용하였습니다.
-
+이전에 제작했던 DBConnector의 경우, DBSendQuery()를 사용하여 실제 쿼리문을 프로그램 내에서 제작하여 DB에 송신하는 방법으로 사용하였습니다.  
 이 방법 대신, 사용자의 실수를 줄이도록 DB에서 정의한 Stored Procedure만을 사용하도록 하며, 
 
-각 프로시저가 사용자가 정의한 실제 프로시저와 같은 Input과 Output을 사용하는지를 Google Test를 사용하여 검사하며, 정상적인 프로시저의 사용만을 유도합니다.
-
+각 프로시저가 사용자가 정의한 실제 프로시저와 같은 Input과 Output을 사용하는지를 Google Test를 사용하여 검사하며, 정상적인 프로시저의 사용만을 유도합니다.  
 BuildConfig.h의 UNIT_TEST를 0으로 수정하여 Google Test를 Off시킬 수 있지만, 이 경우, DB와 프로젝트 내에서 사용자가 정의한 프로시저의 상호 검증 과정이 제외되므로, 권장하지 않습니다.
 
-현재 테스트를 위하여 DBServer를 추가하여 [RIOTest의 DBClient](https://github.com/m5623skhj/RIOServerTest/blob/main/RIO_Test/DBClient.cpp)와 통신하며, 클라이언트가 요청한 프로시저를 호출합니다.
-
+현재 테스트를 위하여 DBServer를 추가하여 [RIOTest의 DBClient](https://github.com/m5623skhj/RIOServerTest/blob/main/RIO_Test/DBClient.cpp)와 통신하며, 클라이언트가 요청한 프로시저를 호출합니다.  
 현재 프로젝트를 그대로 실행시킬 시, 시작 흐름은 아래와 같은 순서로 진행됩니다.
 
 ```mermaid

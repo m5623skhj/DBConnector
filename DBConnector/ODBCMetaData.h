@@ -36,7 +36,7 @@ struct ProcedureInfo
 
 	bool SettingDefaultSPMaker(SQLHSTMT stmtHandle) const;
 
-	static bool SettingSPMaker(SQLHSTMT stmtHandle)
+	bool SettingSPMaker(SQLHSTMT stmtHandle) const
 	{
 		return true;
 	}

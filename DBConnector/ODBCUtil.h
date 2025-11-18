@@ -106,12 +106,6 @@ namespace ODBCUtil
 		}
 
 		template<typename T>
-		SQLLEN GetBufferSize(const T&)
-		{
-			return GetBufferSize<T>();
-		}
-
-		template<typename T>
 		SQLPOINTER GetPointerFromT(const T& input)
 		{
 			if constexpr (std::is_pointer_v<T>)

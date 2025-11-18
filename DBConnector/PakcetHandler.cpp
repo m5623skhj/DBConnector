@@ -28,7 +28,13 @@ void DBServer::HandlePacket(const UINT64 requestSessionId, PACKET_ID packetId, C
 	{
 		if (key == 0)
 		{
-			ProcedureHandleImpl(requestSessionId, packetId, recvBuffer);
+			auto [isSuccess, buffer] = ProcedureHandleImpl(requestSessionId, packetId, recvBuffer);
+			if (isSuccess == true)
+			{
+				SendPacket(requestSessionId, buffer);
+			}
+
+			CSerializationBuf::Free(buffer);
 		}
 		else if (IsBatchJobWaitingJob(key) == true)
 		{
@@ -210,7 +216,7 @@ bool DBServer::DbJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PA
 
 		SP::test t;
 		*recvBuffer >> t.id3;
-		t.teststring.Resize(recvBuffer->GetUseSize());
+		t.teststring.Resize(static_cast<unsigned short>(recvBuffer->GetUseSize()));
 		recvBuffer->ReadBuffer(reinterpret_cast<char*>(const_cast<WCHAR*>(t.teststring.GetCString())), recvBuffer->GetUseSize());
 
 		if (connector.CallSPDirectWithSPObject(conn.stmtHandle, procedure, t) == false)

@@ -30,8 +30,7 @@ void DBServer::HandlePacket(const UINT64 requestSessionId, PACKET_ID packetId, C
 		{
 			ProcedureHandleImpl(requestSessionId, packetId, recvBuffer);
 		}
-
-		if (IsBatchJobWaitingJob(key) == true)
+		else if (IsBatchJobWaitingJob(key) == true)
 		{
 			AddItemForJobStart(requestSessionId, key, packetId, recvBuffer);
 		}

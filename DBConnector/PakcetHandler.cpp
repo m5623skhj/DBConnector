@@ -220,6 +220,7 @@ bool DBServer::DbJobHandleImpl(UINT64 requestSessionId, UINT64 userSessionId, PA
 		}
 
 		isSuccess = true;
+		break;
 	}
 	default:
 		cout << "Invalid packet id : " << static_cast<UINT>(packetId) << '\n';

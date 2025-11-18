@@ -5,7 +5,7 @@
 #include <memory>
 #include "ODBCMetaData.h"
 #include "ODBCConst.h"
-#include <list>
+#include <stack>
 #include <mutex>
 #include <optional>
 #include "StoredProcedure.h"
@@ -36,7 +36,7 @@ private:
 	bool Initialize();
 
 private:
-	std::list<DBConnection> connectionList;
+	std::stack<DBConnection> connectionStack;
 	std::mutex connectionLock;
 
 private:

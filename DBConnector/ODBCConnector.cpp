@@ -30,27 +30,28 @@ void DBConnectionPool::Cleanup()
 {
 	std::lock_guard lock(connectionLock);
 
-	for (const auto& [dbcHandle, stmtHandle] : connectionList)
+	while (not connectionStack.empty())
 	{
+		const auto& [dbcHandle, stmtHandle] = connectionStack.top();
 		SQLFreeHandle(SQL_HANDLE_STMT, stmtHandle);
 		SQLDisconnect(dbcHandle);
 		SQLFreeHandle(SQL_HANDLE_DBC, dbcHandle);
-	}
 
-	connectionList.clear();
+		connectionStack.pop();
+	}
 }
 
 std::optional<DBConnection> DBConnectionPool::GetConnection()
 {
 	std::lock_guard lock(connectionLock);
 
-	if (connectionList.empty())
+	if (connectionStack.empty())
 	{
 		return std::nullopt;
 	}
 
-	auto& connection = connectionList.front();
-	connectionList.pop_front();
+	auto& connection = connectionStack.top();
+	connectionStack.pop();
 
 	return connection;
 }
@@ -58,7 +59,7 @@ std::optional<DBConnection> DBConnectionPool::GetConnection()
 void DBConnectionPool::FreeConnection(DBConnection& connection)
 {
 	std::lock_guard lock(connectionLock);
-	connectionList.emplace_back(connection);
+	connectionStack.push(connection);
 }
 
 bool DBConnectionPool::Initialize() 
@@ -104,7 +105,7 @@ bool DBConnectionPool::Initialize()
 			return false;
 		}
 
-		connectionList.push_back(conn);
+		connectionStack.push(conn);
 	}
 
 	SQLFreeHandle(SQL_HANDLE_ENV, environmentHandle);

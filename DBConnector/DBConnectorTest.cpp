@@ -1,6 +1,5 @@
 #include "PreCompile.h"
 
-#include "GoogleTest.h"
 #include "ODBCConnector.h"
 #include "StoredProcedure.h"
 #include "ODBCMetaData.h"
@@ -32,7 +31,7 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 	ASSERT_EQ(connector.ConnectDB(L"OptionFile/DBConnectFile.txt"), true);
 	EXPECT_EQ(connector.InitDB(), true);
 
-	std::vector<ProcedureName> notMatchedProcedureList;
+	std::vector<std::string> notMatchedProcedureList;
 	auto columnMatch = [](
 		const std::vector<std::pair<std::string, ProcedureTypeName>>& cppProperties
 		, const std::vector<std::pair<std::string, ProcedureTypeName>>& dbProperties) -> bool
@@ -66,8 +65,21 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 
 		auto matchedProcedureInfo = connector.GetProcedureInfo(testProcedure.first);
 		ASSERT_NE(matchedProcedureInfo, nullptr);
+		if (matchedProcedureInfo == nullptr)
+		{
+			const std::string notMatchedInfo = "Procedure was not found in DBConnector. ProcedureName[" + testProcedure.first + "]\n";
+			notMatchedProcedureList.emplace_back(notMatchedInfo);
+			continue;
+		}
+
 		auto matchedProcedureResultColumnInfo = resultPropertyMap.find(testProcedure.first);
 		ASSERT_NE(matchedProcedureResultColumnInfo, resultPropertyMap.end());
+		if (matchedProcedureResultColumnInfo == resultPropertyMap.end())
+		{
+			const std::string notMatchedInfo = "Procedure result was not found in resultPropertyMap. ProcedureName[" + testProcedure.first + "]\n";
+			notMatchedProcedureList.emplace_back(notMatchedInfo);
+			continue;
+		}
 
 		std::vector<std::pair<std::string, ProcedureTypeName>> dbInputProperties;
 		char utf8Name[256], utf8DataTypeName[256];
@@ -91,7 +103,8 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 		isMatched = columnMatch(matchedProcedureResultColumnInfo->second, dbResultProperties) && isMatched;
 		if (isMatched == false)
 		{
-			notMatchedProcedureList.emplace_back(testProcedure.first);
+			const std::string notMatchedInfo = "Procedure parameter not matched. ProcedureName[" + testProcedure.first + "]\n";
+			notMatchedProcedureList.emplace_back(notMatchedInfo);
 		}
 		EXPECT_TRUE(isMatched);
 	}
@@ -102,7 +115,7 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 		std::cout << "---------------------------------------" << '\n';
 		for (const auto& notMatchedProcedure : notMatchedProcedureList)
 		{
-			std::cout << "Procedure was not matched. ProcedureName[" << notMatchedProcedure << "]" << '\n';
+			std::cout << notMatchedProcedure;
 		}
 		std::cout << "---------------------------------------" << '\n' << '\n' << '\n';
 	}

@@ -64,7 +64,7 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 		testProcedure.second->GetTypeInfo().GetAllProperties(cppProperties);
 
 		auto matchedProcedureInfo = connector.GetProcedureInfo(testProcedure.first);
-		ASSERT_NE(matchedProcedureInfo, nullptr);
+		EXPECT_NE(matchedProcedureInfo, nullptr);
 		if (matchedProcedureInfo == nullptr)
 		{
 			const std::string notMatchedInfo = "Procedure was not found in DBConnector. ProcedureName[" + testProcedure.first + "]\n";
@@ -73,7 +73,7 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 		}
 
 		auto matchedProcedureResultColumnInfo = resultPropertyMap.find(testProcedure.first);
-		ASSERT_NE(matchedProcedureResultColumnInfo, resultPropertyMap.end());
+		EXPECT_NE(matchedProcedureResultColumnInfo, resultPropertyMap.end());
 		if (matchedProcedureResultColumnInfo == resultPropertyMap.end())
 		{
 			const std::string notMatchedInfo = "Procedure result was not found in resultPropertyMap. ProcedureName[" + testProcedure.first + "]\n";

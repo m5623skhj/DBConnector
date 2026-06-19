@@ -20,15 +20,15 @@ struct DB_IgnoreType : IResultType
 	DEFINE_CLASS_INFO(DB_IgnoreType)
 };
 
-struct TestReulstType : IResultType
+struct TestResultType : IResultType
 {
-	DEFINE_CLASS_INFO(TestReulstType)
+	DEFINE_CLASS_INFO(TestResultType)
 
 	REGISTER_PROPERTY(id)
 	REGISTER_PROPERTY(no)
 
 public:
-	TestReulstType()
+	TestResultType()
 	{
 		INPUT_REAL_POINTER(id)
 		INPUT_REAL_POINTER(no)

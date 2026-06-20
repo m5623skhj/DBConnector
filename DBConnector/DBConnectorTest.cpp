@@ -43,7 +43,7 @@ TEST(DBConnectorTest, ProcedureParameterTest)
 
 		for (size_t i = 0; i < cppProperties.size(); ++i)
 		{
-			// 컬럼의 타입과 순서만 검사
+			// Only checks column type and order
 			if (cppProperties[i].second != dbProperties[i].second)
 			{
 				if (ODBCUtil::IsSameType(cppProperties[i].second, dbProperties[i].second) == false)

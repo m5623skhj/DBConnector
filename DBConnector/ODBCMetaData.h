@@ -38,6 +38,7 @@ struct ProcedureInfo
 
 	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation) const
 	{
+		UNREFERENCED_PARAMETER(stmtHandle);
 		if (parameterLocation <= 0)
 		{
 			return false;

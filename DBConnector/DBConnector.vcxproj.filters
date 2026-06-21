@@ -45,12 +45,6 @@
     <ClCompile Include="ODBCConnector.cpp">
       <Filter>소스 파일\ODBC</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Desktop\Common\Parse.cpp">
-      <Filter>소스 파일\Include</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Desktop\Common\PreCompile.cpp">
-      <Filter>소스 파일\Include</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -75,23 +69,29 @@
     <ClCompile Include="TypeInfo.cpp">
       <Filter>소스 파일\Reflection</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Desktop\Common\LanServer.cpp">
-      <Filter>소스 파일\Include</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Desktop\Common\LanServerSerializeBuf.cpp">
-      <Filter>소스 파일\Include</Filter>
-    </ClCompile>
     <ClCompile Include="DBServer.cpp">
       <Filter>소스 파일\DBServer</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\Desktop\Common\Ringbuffer.cpp">
-      <Filter>소스 파일\Include</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Desktop\Common\Log.cpp">
-      <Filter>소스 파일\Include</Filter>
-    </ClCompile>
     <ClCompile Include="PakcetHandler.cpp">
       <Filter>소스 파일\DBServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\CommonForGit\Common\LanServer.cpp">
+      <Filter>소스 파일\Include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\CommonForGit\Common\LanServerSerializeBuf.cpp">
+      <Filter>소스 파일\Include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\CommonForGit\Common\Log.cpp">
+      <Filter>소스 파일\Include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\CommonForGit\Common\Parse.cpp">
+      <Filter>소스 파일\Include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\CommonForGit\Common\PreCompile.cpp">
+      <Filter>소스 파일\Include</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\Desktop\CommonForGit\Common\Ringbuffer.cpp">
+      <Filter>소스 파일\Include</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

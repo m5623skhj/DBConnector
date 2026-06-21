@@ -14,8 +14,8 @@ struct ProcedureInfo;
 
 struct DBConnection
 {
-	SQLHDBC dbcHandle;
-	SQLHSTMT stmtHandle;
+	SQLHDBC dbcHandle = SQL_NULL_HDBC;
+	SQLHSTMT stmtHandle = SQL_NULL_HSTMT;
 };
 
 class DBConnectionPool
@@ -40,6 +40,7 @@ private:
 	std::mutex connectionLock;
 
 private:
+	SQLHENV environmentHandle = SQL_NULL_HENV;
 	int poolSize = 0;
 	std::wstring connectionString;
 };
@@ -230,6 +231,7 @@ public:
 private:
 	DBConnectionPool connectionPool;
 	DBConnection defaultConnection;
+	SQLHENV environmentHandle = SQL_NULL_HENV;
 
 public:
 	const ProcedureInfo* GetProcedureInfo(const ProcedureName& procedureName) const;

@@ -36,34 +36,37 @@ struct ProcedureInfo
 
 	bool SettingDefaultSPMaker(SQLHSTMT stmtHandle) const;
 
-	bool SettingSPMaker(SQLHSTMT stmtHandle) const
+	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation) const
 	{
-		return true;
-	}
-
-	template <typename T>
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const T& input) const
-	{
-		const size_t index = parameterLocation - 1;
-		if (inputColumnInfoList.size() < index)
+		if (parameterLocation <= 0)
 		{
 			return false;
 		}
 
-		return ODBCUtil::SettingSPMaker(stmtHandle, parameterLocation
-			, inputColumnInfoList[index].dataType, inputColumnInfoList[index].columnType, input);
+		return static_cast<size_t>(parameterLocation - 1) == inputColumnInfoList.size();
 	}
 
 	template <typename T, typename... Args>
-	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const T& input, Args&... args) const
+	bool SettingSPMaker(SQLHSTMT stmtHandle, int parameterLocation, const T& input, const Args&... args) const
 	{
-		if (SettingSPMaker(stmtHandle, parameterLocation, input) == false)
+		if (parameterLocation <= 0)
 		{
 			return false;
 		}
 
-		int nextParameterLocation = parameterLocation + 1;
-		return SettingSPMaker(stmtHandle, nextParameterLocation, args...);
+		const size_t index = parameterLocation - 1;
+		if (inputColumnInfoList.size() <= index)
+		{
+			return false;
+		}
+
+		if (ODBCUtil::SettingSPMaker(stmtHandle, parameterLocation
+			, inputColumnInfoList[index].dataType, inputColumnInfoList[index].columnType, input) == false)
+		{
+			return false;
+		}
+
+		return SettingSPMaker(stmtHandle, parameterLocation + 1, args...);
 	}
 
 private:

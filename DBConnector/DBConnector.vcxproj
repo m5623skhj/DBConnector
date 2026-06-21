@@ -144,7 +144,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\Users\KimHyeongJin\source\repos\DBConnector\DBConnector\googletest-main\googletest\include;C:\Users\KimHyeongJin\Desktop\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\KimHyeongJin\source\repos\DBConnector\DBConnector\googletest-main\googletest\include;C:\Users\KimHyeongJin\Desktop\CommonForGit\Common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>PreCompile.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -156,16 +156,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\Desktop\Common\LanServer.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Desktop\Common\LanServerSerializeBuf.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\Desktop\Common\Log.cpp" />
-    <ClCompile Include="..\..\..\..\Desktop\Common\Parse.cpp" />
-    <ClCompile Include="..\..\..\..\Desktop\Common\PreCompile.cpp" />
-    <ClCompile Include="..\..\..\..\Desktop\Common\Ringbuffer.cpp" />
+    <ClCompile Include="..\..\..\..\Desktop\CommonForGit\Common\LanServer.cpp" />
+    <ClCompile Include="..\..\..\..\Desktop\CommonForGit\Common\LanServerSerializeBuf.cpp" />
+    <ClCompile Include="..\..\..\..\Desktop\CommonForGit\Common\Log.cpp" />
+    <ClCompile Include="..\..\..\..\Desktop\CommonForGit\Common\Parse.cpp" />
+    <ClCompile Include="..\..\..\..\Desktop\CommonForGit\Common\PreCompile.cpp" />
+    <ClCompile Include="..\..\..\..\Desktop\CommonForGit\Common\Ringbuffer.cpp" />
     <ClCompile Include="DBConnectorTest.cpp" />
     <ClCompile Include="DBServer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
